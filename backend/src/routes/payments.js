@@ -137,6 +137,7 @@ function createPaymentsRouter({
         const assetLimits = limits[body.asset];
         if (assetLimits) {
           if (assetLimits.min !== undefined && body.amount < assetLimits.min) {
+            paymentFailedCounter.inc({ asset: body.asset, reason: "below_min" });
             return res.status(400).json({
               error: `Amount is below the minimum for ${body.asset}`,
               min: assetLimits.min,
@@ -144,6 +145,7 @@ function createPaymentsRouter({
             });
           }
           if (assetLimits.max !== undefined && body.amount > assetLimits.max) {
+            paymentFailedCounter.inc({ asset: body.asset, reason: "above_max" });
             return res.status(400).json({
               error: `Amount exceeds the maximum for ${body.asset}`,
               max: assetLimits.max,
@@ -158,6 +160,7 @@ function createPaymentsRouter({
       const allowedIssuers = req.merchant.allowed_issuers;
       if (Array.isArray(allowedIssuers) && allowedIssuers.length > 0) {
         if (!body.asset_issuer || !allowedIssuers.includes(body.asset_issuer)) {
+          paymentFailedCounter.inc({ asset: body.asset, reason: "invalid_issuer" });
           return res.status(400).json({
             error:
               "asset_issuer is not in the merchant's list of allowed issuers",
