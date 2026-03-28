@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useWallet } from "@/lib/wallet-context";
+import { Spinner } from "@/components/ui/Spinner";
 import { usePayment } from "@/lib/usePayment";
 import { useAssetMetadata } from "@/lib/useAssetMetadata";
 import { createReceiptPdf } from "@/lib/receipt-pdf";
@@ -159,6 +160,7 @@ function MerchantHeader({ branding, paymentId, t }: MerchantHeaderProps) {
             alt={altText}
             onError={() => setLogoError(true)}
             className="h-10 w-auto max-w-[180px] object-contain"
+            // It seems you&apos;re currently offline. Please check your connection and
             // Prevent referrer leakage to third-party image hosts
             referrerPolicy="no-referrer"
           />
@@ -424,7 +426,7 @@ export default function PaymentPage() {
     return () => controller.abort();
   }, [paymentId, t]);
 
-  // ── Poll until settled ─────────────────────────────────────────────────────
+  // ── Real-time status updates via SSE ──────────────────────────────────────
   useEffect(() => {
     if (loading || !payment) return;
     const settled = ["confirmed", "completed", "failed"].includes(
@@ -432,16 +434,46 @@ export default function PaymentPage() {
     );
     if (settled) return;
 
+    const eventSource = new EventSource(`${API_URL}/api/stream/${paymentId}`);
+
+    eventSource.addEventListener("payment.confirmed", (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setPayment((prev) => (prev ? { ...prev, status: data.status, tx_id: data.tx_id } : null));
+        toast.success(t("paymentConfirmed") || "Payment confirmed!");
+        eventSource.close();
+      } catch (err) {
+        console.error("Failed to parse SSE message", err);
+      }
+    });
+
+    eventSource.onerror = () => {
+      console.warn("SSE connection failed, falling back to polling.");
+      eventSource.close();
+    };
+
+    return () => eventSource.close();
+  }, [paymentId, payment, loading, t]);
+
+  // ── Polling fallback (only if not confirmed) ──────────────────────────────
+  useEffect(() => {
+    if (loading || !payment) return;
+    const settled = ["confirmed", "completed", "failed"].includes(payment.status);
+    if (settled) return;
+
+    // Use a longer interval for polling fallback (e.g., 10s)
     const id = setInterval(async () => {
       try {
         const res = await fetch(`${API_URL}/api/payment-status/${paymentId}`);
         if (!res.ok) return;
         const data = await res.json();
-        if (data.payment) setPayment(data.payment);
+        if (data.payment && data.payment.status !== payment.status) {
+          setPayment(data.payment);
+        }
       } catch {
         /* silent — retry next tick */
       }
-    }, 3000);
+    }, 10000);
 
     return () => clearInterval(id);
   }, [paymentId, payment, loading]);
@@ -616,7 +648,7 @@ export default function PaymentPage() {
   const isFailed = payment.status === "failed";
 
   // Resolve branding once — used by both the theme style and the header component
-  const branding = resolveBranding(payment.branding_config);
+  const branding = resolveBranding(payment.branding_config || {});
 
   return (
     <>
@@ -720,7 +752,7 @@ export default function PaymentPage() {
                 <button
                   type="button"
                   onClick={() => setShowRawIntent((prev) => !prev)}
-                  className="mx-auto mt-2 text-xs font-medium transition-colors"
+                  className="mx-auto mt-2 text-xs font-medium transition-colors hover:text-glow"
                   style={{ color: "var(--checkout-primary)" }}
                 >
                   {showRawIntent ? t("hideRawIntent") : t("viewRawIntent")}
@@ -911,7 +943,7 @@ export default function PaymentPage() {
                       process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ??
                       "Test SDF Network ; September 2015"
                     }
-                    onConnected={() => {}}
+                    onConnected={() => { }}
                   />
                 )}
               </div>

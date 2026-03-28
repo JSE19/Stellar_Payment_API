@@ -23,6 +23,7 @@ import {
   invalidatePaymentCache,
 } from "../lib/redis.js";
 import { getPayloadForVersion } from "../webhooks/resolver.js";
+import { streamManager } from "../lib/stream-manager.js";
 import {
   paymentCreatedCounter,
   paymentConfirmedCounter,
@@ -346,6 +347,32 @@ function createPaymentsRouter({
 
   /**
    * @swagger
+   * /api/stream/{id}:
+   *   get:
+   *     summary: Subscribe to real-time status updates for a payment
+   *     tags: [Payments]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Payment ID
+   *     responses:
+   *       200:
+   *         description: SSE stream
+   */
+  router.get("/stream/:id", validateUuidParam(), (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    streamManager.addClient(req.params.id, res);
+  });
+
+  /**
+   * @swagger
    * /api/verify-payment/{id}:
    *   post:
    *     summary: Verify a payment on the Stellar network
@@ -442,6 +469,12 @@ function createPaymentsRouter({
           });
         }
 
+        // Notify customer via SSE (issue #89)
+        streamManager.notify(data.id, "payment.confirmed", {
+          status: "confirmed",
+          tx_id: match.transaction_hash,
+        });
+
         const merchantSecret = data.merchants?.webhook_secret;
         const merchantVersion = data.merchants?.webhook_version || "v1";
 
@@ -457,7 +490,6 @@ function createPaymentsRouter({
             tx_id: match.transaction_hash,
           }
         );
-
         const webhookResult = await sendWebhook(
           data.webhook_url,
           webhookPayload,
