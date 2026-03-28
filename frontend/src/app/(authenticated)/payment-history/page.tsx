@@ -14,7 +14,6 @@ import {
   useMerchantId,
 } from "@/lib/merchant-store";
 import { usePaymentSocket } from "@/lib/usePaymentSocket";
-import { convertToCSV, downloadCSV } from "@/utils/csv";
 
 interface Payment {
   id: string;
@@ -838,11 +837,10 @@ export default function PaymentHistoryPage() {
             {payments.map((payment) => (
               <tr
                 key={payment.id}
-                className={`transition-colors hover:bg-white/5 ${
-                  flashedIds.has(payment.id)
-                    ? "animate-payment-confirmed bg-green-500/10"
-                    : ""
-                }`}
+                className={`transition-colors hover:bg-white/5 ${flashedIds.has(payment.id)
+                  ? "animate-payment-confirmed bg-green-500/10"
+                  : ""
+                  }`}
               >
                 <td className="px-4 py-3">
                   <code className="text-xs text-slate-400">
@@ -851,15 +849,14 @@ export default function PaymentHistoryPage() {
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      payment.status === "confirmed"
-                        ? "bg-green-500/20 text-green-400"
-                        : payment.status === "failed"
-                          ? "bg-red-500/20 text-red-400"
-                          : payment.status === "refunded"
-                            ? "bg-blue-500/20 text-blue-400"
-                            : "bg-yellow-500/20 text-yellow-400"
-                    }`}
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${payment.status === "confirmed"
+                      ? "bg-green-500/20 text-green-400"
+                      : payment.status === "failed"
+                        ? "bg-red-500/20 text-red-400"
+                        : payment.status === "refunded"
+                          ? "bg-blue-500/20 text-blue-400"
+                          : "bg-yellow-500/20 text-yellow-400"
+                      }`}
                   >
                     {toStatusLabel(t, payment.status)}
                   </span>

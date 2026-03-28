@@ -28,7 +28,7 @@ export default function OfflinePage() {
 
         <h1 className="text-2xl font-bold text-white mb-3">Connection Lost</h1>
         <p className="text-slate-400 mb-8">
-          It looks like you're offline. Please check your internet connection to continue with your payment.
+          It looks like you&apos;re offline. Please check your internet connection to continue with your payment.
         </p>
 
         <button

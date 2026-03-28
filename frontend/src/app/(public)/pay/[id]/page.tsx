@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useWallet } from "@/lib/wallet-context";
+import { Spinner } from "@/components/ui/Spinner";
 import { usePayment } from "@/lib/usePayment";
 import { useAssetMetadata } from "@/lib/useAssetMetadata";
 import { createReceiptPdf } from "@/lib/receipt-pdf";
@@ -159,6 +160,7 @@ function MerchantHeader({ branding, paymentId, t }: MerchantHeaderProps) {
             alt={altText}
             onError={() => setLogoError(true)}
             className="h-10 w-auto max-w-[180px] object-contain"
+            // It seems you&apos;re currently offline. Please check your connection and
             // Prevent referrer leakage to third-party image hosts
             referrerPolicy="no-referrer"
           />

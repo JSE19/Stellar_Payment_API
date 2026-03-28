@@ -1,4 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("./supabase.js", () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      insert: vi.fn(() => Promise.resolve({ error: null })),
+    })),
+  },
+}));
+
 import { signPayload, verifyWebhook, isPrivateIP, validateWebhookUrl } from "./webhooks.js";
 
 describe("verifyWebhook", () => {
