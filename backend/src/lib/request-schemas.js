@@ -216,6 +216,12 @@ export const v2PaymentSessionSchema = paymentSessionZodSchema;
 
 const SAFE_HEADER_NAME_RE = /^[a-zA-Z0-9\-_]+$/;
 
+export const VALID_WEBHOOK_EVENTS = [
+  "payment.confirmed",
+  "payment.failed",
+  "payment.expired",
+];
+
 export const webhookSettingsSchema = z.object({
   webhook_url: z.preprocess(
     (value) => {
@@ -237,6 +243,15 @@ export const webhookSettingsSchema = z.object({
     .refine(
       (obj) => Object.keys(obj).every((k) => SAFE_HEADER_NAME_RE.test(k)),
       "Header names must contain only alphanumeric characters, hyphens, or underscores",
+    )
+    .optional()
+    .nullable(),
+  subscribed_events: z
+    .array(
+      z.string().refine(
+        (e) => VALID_WEBHOOK_EVENTS.includes(e),
+        (e) => ({ message: `"${e}" is not a valid event type. Valid values: ${VALID_WEBHOOK_EVENTS.join(", ")}` }),
+      ),
     )
     .optional()
     .nullable(),
@@ -273,7 +288,11 @@ export const authChallengeSchema = z.object({
       invalid_type_error: "Account must be a string",
     })
     .trim()
-    .min(1, "destination_address is required"),
+    .min(1, "destination_address is required")
+    .refine(
+      (val) => val.startsWith("G") && val.length === 56,
+      "Invalid Stellar address",
+    ),
   description: paymentBaseSchema.shape.description,
   memo: paymentBaseSchema.shape.memo,
   memo_type: paymentBaseSchema.shape.memo_type,
@@ -283,10 +302,6 @@ export const authChallengeSchema = z.object({
   }, "callback_url must be a valid URL"),
   client_id: paymentBaseSchema.shape.client_id,
   metadata: z.unknown().optional(),
-    .refine(
-      (val) => val.startsWith("G") && val.length === 56,
-      "Invalid Stellar address",
-    ),
 });
 
 export const authVerifySchema = z.object({
