@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import PaymentDetailModal from "@/components/PaymentDetailModal";
+import PaymentDetailsSheet from "@/components/PaymentDetailsSheet";
 import ExportCsvButton from "@/components/ExportCsvButton";
 import { localeToLanguageTag } from "@/i18n/config";
 import {
@@ -109,6 +110,7 @@ export default function PaymentHistoryPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [flashedIds, setFlashedIds] = useState<Set<string>>(new Set());
 
   const updateFilters = useCallback(
@@ -230,7 +232,12 @@ export default function PaymentHistoryPage() {
 
   const handlePaymentClick = (paymentId: string) => {
     setSelectedPayment(paymentId);
-    setIsModalOpen(true);
+    setIsSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setIsSheetOpen(false);
+    setSelectedPayment(null);
   };
 
   const closeModal = () => {
@@ -837,7 +844,8 @@ export default function PaymentHistoryPage() {
             {payments.map((payment) => (
               <tr
                 key={payment.id}
-                className={`transition-colors hover:bg-white/5 ${flashedIds.has(payment.id)
+                onClick={() => handlePaymentClick(payment.id)}
+                className={`cursor-pointer transition-colors hover:bg-white/5 ${flashedIds.has(payment.id)
                   ? "animate-payment-confirmed bg-green-500/10"
                   : ""
                   }`}
@@ -945,6 +953,15 @@ export default function PaymentHistoryPage() {
           paymentId={selectedPayment}
           isOpen={isModalOpen}
           onClose={closeModal}
+        />
+      )}
+
+      {/* Payment Detail Sheet */}
+      {selectedPayment && (
+        <PaymentDetailsSheet
+          paymentId={selectedPayment}
+          isOpen={isSheetOpen}
+          onClose={closeSheet}
         />
       )}
     </div>
