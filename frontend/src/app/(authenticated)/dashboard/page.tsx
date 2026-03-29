@@ -53,7 +53,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-10 animate-in fade-in duration-500">
       <header className="flex flex-col gap-4">
         <h1 className="text-4xl font-bold text-white">{t("title")}</h1>
-        <p className="max-w-2xl text-slate-400">{t("description")}</p>
+        <p className="max-w-2xl text-slate-300">{t("description")}</p>
       </header>
 
       <div className="grid gap-10 lg:grid-cols-3">
@@ -96,6 +96,7 @@ export default function DashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -107,14 +108,17 @@ export default function DashboardPage() {
                 {t("createPaymentLink")}
               </Link>
               <button
+                type="button"
                 onClick={() => setIsWithdrawOpen(true)}
-                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition-all hover:bg-white/10 hover:text-white"
+                aria-label={t("withdrawFunds")}
               >
                 <svg
                   className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -134,6 +138,7 @@ export default function DashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -154,13 +159,15 @@ export default function DashboardPage() {
                 href="/api-docs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition-all hover:bg-white/10 hover:text-white"
+                aria-label="View API documentation in a new tab"
               >
                 <svg
                   className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -178,7 +185,7 @@ export default function DashboardPage() {
             <h3 className="mb-4 text-lg font-semibold text-white">
               {t("development")}
             </h3>
-            <div className="space-y-4 text-sm text-slate-400">
+            <div className="space-y-4 text-sm text-slate-300">
               <div className="flex items-start gap-3">
                 <div className="mt-1 h-1.5 w-1.5 rounded-full bg-mint" />
                 <p>{t("apiKeysTip")}</p>

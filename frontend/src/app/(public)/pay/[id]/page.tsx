@@ -415,7 +415,6 @@ export default function PaymentPage() {
     useState<NetworkFeeResponse["network_fee"] | null>(null);
   const [networkFeeLoading, setNetworkFeeLoading] = useState(false);
   const [networkFeeError, setNetworkFeeError] = useState<string | null>(null);
-  const paymentStatus = payment?.status;
 
   useEffect(() => {
     if (

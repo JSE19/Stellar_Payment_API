@@ -106,7 +106,10 @@ function NavLinks({
   const navItems = getNavItems(t);
 
   return (
-    <nav className="flex flex-1 flex-col gap-2 px-3 py-6">
+    <nav
+      aria-label="Dashboard navigation"
+      className="flex flex-1 flex-col gap-2 px-3 py-6"
+    >
       {navItems.map((item) => {
         const isActive =
           pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -165,12 +168,15 @@ export default function Sidebar({
           onClick={() => setIsCollapsed((value) => !value)}
           className="hidden rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white lg:inline-flex"
           aria-label={isCollapsed ? t("expand") : t("collapse")}
+          aria-controls="dashboard-sidebar-navigation"
+          aria-expanded={!isCollapsed}
         >
           <svg
             className={`h-5 w-5 transition-transform ${isCollapsed ? "rotate-180" : ""}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -191,6 +197,7 @@ export default function Sidebar({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -248,6 +255,7 @@ export default function Sidebar({
       <motion.aside
         initial={false}
         animate={{ width: isCollapsed ? 96 : 280 }}
+        id="dashboard-sidebar-navigation"
         className="sticky top-0 hidden h-screen shrink-0 border-r border-white/10 bg-black/40 backdrop-blur-xl lg:flex"
       >
         {chrome}
@@ -255,6 +263,7 @@ export default function Sidebar({
 
       <motion.div
         initial={false}
+        id="dashboard-sidebar-mobile"
         animate={{
           opacity: mobileOpen ? 1 : 0,
           pointerEvents: mobileOpen ? "auto" : "none",
