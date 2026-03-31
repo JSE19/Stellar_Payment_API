@@ -133,7 +133,7 @@ const itemVariants: Variants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
   }
 };
 
@@ -287,7 +287,7 @@ function FeaturesSection() {
         viewport={{ once: true, amount: 0.1 }}
         className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {FEATURES.map((f, i) => (
+        {FEATURES.map((f) => (
           <motion.div 
             key={f.title} 
             variants={itemVariants}
