@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Link from "next/link";
+import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import { toast } from "sonner";
 import {
@@ -730,10 +731,13 @@ export default function SettingsPage() {
                 <input {...getInputProps()} />
                 {branding.logo_url ? (
                   <div className="group relative flex flex-col items-center gap-3 p-4">
-                    <img
+                    <Image
                       src={branding.logo_url}
                       alt="Logo preview"
-                      className="h-16 w-16 object-contain"
+                      width={64}
+                      height={64}
+                      className="object-contain"
+                      unoptimized
                     />
                     <span className="text-xs text-slate-500 group-hover:text-slate-300">
                       Click or drag to change logo
@@ -850,10 +854,13 @@ export default function SettingsPage() {
                 </p>
                 {branding.logo_url && (
                   <div className="mb-4 flex justify-center">
-                    <img
+                    <Image
                       src={branding.logo_url}
                       alt="Logo preview"
+                      width={120}
+                      height={48}
                       className="h-12 w-auto object-contain"
+                      unoptimized
                     />
                   </div>
                 )}

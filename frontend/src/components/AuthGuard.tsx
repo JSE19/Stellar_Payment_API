@@ -5,14 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useMerchantHydrated, useMerchantSession } from "@/lib/merchant-store";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const hydrated = useMerchantHydrated();
-  const session = useMerchantSession();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
+    // Component mounted
   }, []);
 
   // useEffect(() => {

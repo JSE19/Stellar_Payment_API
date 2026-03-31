@@ -224,6 +224,9 @@ export function sanitizeCustomHeaders(raw) {
     "content-type",
     "user-agent",
     "pluto-signature",
+    "stellar-signature",
+    "pluto-timestamp",
+    "stellar-timestamp",
   ]);
 
   const result = {};

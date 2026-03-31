@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@100..900&display=swap');
 
 * {
   box-sizing: border-box;
@@ -48,8 +47,8 @@ html {
   --surface-subtle: #F9F9F9;
   --accent: #000000;
   
-  --font-sans: "YWFT Formation", "Geist", system-ui, sans-serif;
-  --font-display: "Instrument Serif", serif;
+  --font-sans: "Inconsolata", monospace, sans-serif;
+  --font-display: "Space Mono", monospace, serif;
   
   /* Spacing Scale */
   --space-1: 4px;

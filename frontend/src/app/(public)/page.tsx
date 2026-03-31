@@ -3,7 +3,7 @@
 import GuestGuard from "@/components/GuestGuard";
 import SystemStatus from "@/components/SystemStatus";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useState } from "react";
 
 function Section({
@@ -20,7 +20,7 @@ function Section({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.65, ease: "easeOut", delay }}
       className={className}
     >
       {children}
@@ -42,7 +42,7 @@ function FadeUp({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.6, ease: "easeOut", delay }}
       className={className}
     >
       {children}
@@ -117,6 +117,25 @@ function IconCheck() {
   );
 }
 
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }
+  }
+};
 
 const FEATURES = [
   {
@@ -166,53 +185,68 @@ function HeroSection() {
   return (
     <Section className="relative flex flex-col items-center px-6 pb-24 pt-32 text-center lg:pt-48">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         className="relative z-10 flex flex-col items-center gap-6"
       >
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#E8E8E8] bg-[#F9F9F9] px-5 py-2 font-bold text-[10px] uppercase tracking-[0.2em] text-[#6B6B6B]">
+        <motion.span 
+          variants={itemVariants}
+          className="inline-flex items-center gap-2 rounded-full border border-[#E8E8E8] bg-[#F9F9F9] px-5 py-2 font-bold text-[10px] uppercase tracking-[0.2em] text-[#6B6B6B]"
+        >
           <span className="h-1.5 w-1.5 rounded-full bg-[#0A0A0A]" />
           Surgical Precision Payments
-        </span>
+        </motion.span>
 
-        <h1 className="max-w-5xl text-7xl font-bold leading-[0.9] tracking-tighter text-[#0A0A0A] sm:text-9xl lg:text-[12rem]">
+        <motion.h1 
+          variants={itemVariants}
+          className="max-w-5xl text-7xl font-bold leading-[0.9] tracking-tighter text-[#0A0A0A] sm:text-9xl lg:text-[12rem] font-display uppercase"
+        >
           PLUTO
-        </h1>
+        </motion.h1>
         
-        <h2 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-[#0A0A0A] sm:text-6xl lg:text-7xl">
+        <motion.h2 
+          variants={itemVariants}
+          className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-[#0A0A0A] sm:text-6xl lg:text-7xl font-display uppercase"
+        >
           The Infrastructure for{" "}
           <span className="text-[#6B6B6B]">
              Modern Commerce
           </span>
-        </h2>
+        </motion.h2>
 
-        <p className="max-w-xl font-sans text-base font-medium leading-relaxed text-[#6B6B6B] sm:text-lg">
+        <motion.p 
+          variants={itemVariants}
+          className="max-w-xl font-sans text-base font-medium leading-relaxed text-[#6B6B6B] sm:text-lg"
+        >
           Build high-performance payment experiences on Stellar. 
           Unmatched speed. Near-zero fees. Global scale.
-        </p>
-      </motion.div>
+        </motion.p>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-        className="relative z-10 mt-12 flex flex-col items-center gap-6 sm:flex-row"
-      >
-        <Link
-          href="/register"
-          className="group relative inline-flex items-center gap-2 rounded-lg bg-[#0A0A0A] px-12 py-5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-black active:scale-[0.98]"
+        <motion.div
+          variants={itemVariants}
+          className="mt-6 flex flex-col items-center gap-6 sm:flex-row"
         >
-          Get Started
-          <IconArrow />
-        </Link>
+          <Link
+            href="/register"
+            className="group relative inline-flex items-center gap-2 rounded-lg bg-[#0A0A0A] px-12 py-5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-black active:scale-[0.98] shadow-2xl shadow-black/10"
+          >
+            Get Started
+            <motion.div
+              animate={{ x: [0, 4, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            >
+              <IconArrow />
+            </motion.div>
+          </Link>
 
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 rounded-lg border border-[#E8E8E8] bg-white px-12 py-5 text-sm font-bold uppercase tracking-widest text-[#0A0A0A] transition-all hover:bg-[#F5F5F5]"
-        >
-          Sign In
-        </Link>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#E8E8E8] bg-white px-12 py-5 text-sm font-bold uppercase tracking-widest text-[#0A0A0A] transition-all hover:bg-[#F5F5F5] active:scale-[0.98]"
+          >
+            Sign In
+          </Link>
+        </motion.div>
       </motion.div>
 
       <motion.div
@@ -246,25 +280,34 @@ function FeaturesSection() {
         </h2>
       </Section>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {FEATURES.map((f, i) => (
-          <FadeUp key={f.title} delay={i * 0.1}>
-            <div className="group relative flex h-full flex-col gap-8 overflow-hidden rounded-lg border border-[#E8E8E8] bg-white p-10 transition-all duration-500 hover:border-[#0A0A0A]">
-              <div className="flex items-center justify-between">
-                <div className="text-[#0A0A0A]">{f.icon}</div>
-                <span className="rounded-full border border-[#E8E8E8] px-4 py-1.5 font-bold text-[10px] uppercase tracking-widest text-[#6B6B6B]">
-                  {f.tag}
-                </span>
-              </div>
-
-              <h3 className="text-2xl font-bold text-[#0A0A0A]">{f.title}</h3>
-              <p className="font-sans text-sm font-medium leading-relaxed text-[#6B6B6B]">
-                {f.description}
-              </p>
+          <motion.div 
+            key={f.title} 
+            variants={itemVariants}
+            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            className="group relative flex h-full flex-col gap-8 overflow-hidden rounded-[2rem] border border-[#E8E8E8] bg-white p-10 transition-all duration-500 hover:border-[#0A0A0A] hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-[#0A0A0A] transition-transform duration-500 group-hover:scale-110">{f.icon}</div>
+              <span className="rounded-full border border-[#E8E8E8] px-4 py-1.5 font-bold text-[10px] uppercase tracking-widest text-[#6B6B6B]">
+                {f.tag}
+              </span>
             </div>
-          </FadeUp>
+
+            <h3 className="text-2xl font-bold text-[#0A0A0A] tracking-tight">{f.title}</h3>
+            <p className="font-sans text-sm font-medium leading-relaxed text-[#6B6B6B]">
+              {f.description}
+            </p>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -448,21 +491,32 @@ function HowItWorksSection() {
         </h2>
       </Section>
 
-      <div className="grid gap-16 sm:grid-cols-2 lg:grid-cols-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="grid gap-16 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {steps.map((step, i) => (
-          <FadeUp key={step.title} delay={i * 0.1}>
-            <div className="relative flex flex-col items-center text-center">
-              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-white border border-[#E8E8E8] shadow-[0_10px_40px_rgb(0,0,0,0.03)] text-2xl font-bold text-[#0A0A0A]">
-                {i + 1}
-              </div>
-              <h3 className="mb-4 text-xl font-bold text-[#0A0A0A] uppercase tracking-widest">{step.title}</h3>
-              <p className="font-sans text-sm font-medium leading-relaxed text-[#6B6B6B]">
-                {step.description}
-              </p>
-            </div>
-          </FadeUp>
+          <motion.div 
+            key={step.title} 
+            variants={itemVariants}
+            className="group relative flex flex-col items-center text-center"
+          >
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="mb-8 flex h-24 w-24 items-center justify-center rounded-[3rem] bg-white border border-[#E8E8E8] shadow-[0_10px_40px_rgb(0,0,0,0.03)] text-2xl font-bold text-[#0A0A0A] transition-all group-hover:border-[#0A0A0A]"
+            >
+              <span className="font-display">0{i + 1}</span>
+            </motion.div>
+            <h3 className="mb-4 text-[10px] font-bold text-[#0A0A0A] uppercase tracking-[0.4em]">{step.title}</h3>
+            <p className="font-sans text-sm font-medium leading-relaxed text-[#6B6B6B]">
+              {step.description}
+            </p>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

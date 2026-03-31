@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 function getNavItems(t: ReturnType<typeof useTranslations>) {
   return [
@@ -93,12 +92,10 @@ interface SidebarProps {
 }
 
 function NavLinks({
-  isCollapsed,
   pathname,
   t,
   onNavigate,
 }: {
-  isCollapsed: boolean;
   pathname: string;
   t: ReturnType<typeof useTranslations>;
   onNavigate?: () => void;
@@ -142,15 +139,8 @@ export default function Sidebar({
 }: SidebarProps) {
   const t = useTranslations("sidebar");
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useLocalStorage(
-    "dashboard-sidebar-collapsed",
-    false,
-  );
 
-  const secondaryLinks = [
-    { label: t("createPayment"), href: "/dashboard/create" },
-    { label: t("apiKeys"), href: "/api-keys" },
-  ];
+  // Note: Collapsible logic removed to fix linting as it's not currently used in the UI.
 
   const chrome = (
     <>
@@ -161,7 +151,6 @@ export default function Sidebar({
       </div>
 
       <NavLinks
-        isCollapsed={false}
         pathname={pathname}
         t={t}
         onNavigate={() => onMobileOpenChange(false)}
