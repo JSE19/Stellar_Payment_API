@@ -29,8 +29,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (hydrated) {
-      const timer = setTimeout(() => setLoading(false), 1000);
-      return () => clearTimeout(timer);
+      setLoading(false);
     }
   }, [hydrated]);
 
@@ -80,7 +79,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-2">
               <Link
                 href="/create"
-                className="flex items-center gap-3 rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] px-4 py-3 text-sm font-bold text-[#0A0A0A] transition-all hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A]"
+                className="flex items-center gap-3 rounded-xl border border-[var(--pluto-200)] bg-[var(--pluto-50)] px-4 py-3 text-sm font-bold text-[var(--pluto-700)] transition-all hover:bg-[var(--pluto-500)] hover:text-white hover:border-[var(--pluto-500)]"
               >
                 <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

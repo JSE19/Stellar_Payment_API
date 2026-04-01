@@ -91,13 +91,14 @@ function NavLinks({
           <Link
             key={item.href}
             href={item.href}
+            prefetch={true}
             onClick={onNavigate}
             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${
               isActive
-                ? "bg-[#0A0A0A] text-white"
+                ? "bg-[var(--pluto-500)] text-white"
                 : isHighlight
-                ? "border border-[#E8E8E8] bg-[#F9F9F9] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white hover:border-[#0A0A0A]"
-                : "text-[#6B6B6B] hover:bg-[#F5F5F5] hover:text-[#0A0A0A]"
+                ? "border border-[var(--pluto-200)] bg-[var(--pluto-50)] text-[var(--pluto-700)] hover:bg-[var(--pluto-500)] hover:text-white hover:border-[var(--pluto-500)]"
+                : "text-[#6B6B6B] hover:bg-[var(--pluto-50)] hover:text-[var(--pluto-700)]"
             }`}
           >
             <span className="shrink-0">{item.icon}</span>
@@ -134,7 +135,7 @@ export default function Sidebar({
   const chrome = (
     <>
       <div className="flex h-16 items-center border-b border-[#E8E8E8] px-6">
-        <Link href="/" className="font-display text-2xl tracking-tight text-[#0A0A0A]">
+        <Link href="/" className="font-display text-2xl tracking-tight" style={{ color: "var(--pluto-500)" }}>
           Pluto
         </Link>
       </div>
@@ -146,12 +147,12 @@ export default function Sidebar({
       />
 
       <div className="p-4">
-        <div className="rounded-lg bg-[#F5F5F5] p-5">
-           <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+        <div className="rounded-lg bg-[var(--pluto-50)] border border-[var(--pluto-100)] p-5">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--pluto-600)]">
             {t("network")}
           </p>
-          <div className="mt-2 flex items-center gap-2 text-xs font-medium text-[#0A0A0A]">
-            <span className="h-2 w-2 rounded-full bg-[#111111]" />
+          <div className="mt-2 flex items-center gap-2 text-xs font-medium text-[var(--pluto-800)]">
+            <span className="h-2 w-2 rounded-full bg-[var(--pluto-500)]" />
             Stellar Mainnet
           </div>
         </div>

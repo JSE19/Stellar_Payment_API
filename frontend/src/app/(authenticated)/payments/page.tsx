@@ -15,8 +15,7 @@ export default function PaymentsPage() {
 
   useEffect(() => {
     if (hydrated) {
-      const timer = setTimeout(() => setLoading(false), 800);
-      return () => clearTimeout(timer);
+      setLoading(false);
     }
   }, [hydrated]);
 
@@ -30,7 +29,7 @@ export default function PaymentsPage() {
         </div>
         <Link
           href="/create"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#0A0A0A] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-xl bg-[var(--pluto-500)] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-[var(--pluto-600)] active:scale-[0.98] shrink-0"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

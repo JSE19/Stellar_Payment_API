@@ -45,8 +45,8 @@ import {
 const createPaymentRateLimit = createCreatePaymentRateLimit();
 
 const defaultVerifyPaymentRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 60 * 1000, // 1 minute window
+  max: 30,             // 30 requests per minute per IP (covers 10s polling)
   message: { error: "Too many verification requests, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
@@ -392,9 +392,14 @@ function createPaymentsRouter({
         };
         delete response.merchants;
 
-        // Cache the result for ~2 s to absorb polling bursts
-        await setCachedPayment(redis, req.params.id, response);
+        // Only cache confirmed/completed payments — never cache pending
+        // so status changes are immediately visible to pollers
+        if (data.status === "confirmed" || data.status === "completed") {
+          await setCachedPayment(redis, req.params.id, response);
+        }
 
+        // Prevent HTTP-level caching so 304 responses never mask status changes
+        res.setHeader("Cache-Control", "no-store");
         res.json({ payment: response });
       } catch (err) {
         next(err);
@@ -499,9 +504,22 @@ function createPaymentsRouter({
           assetIssuer: data.asset_issuer,
           memo: data.memo,
           memoType: data.memo_type,
+          createdAt: data.created_at,
         });
 
         if (!match) {
+          return res.json({ status: "pending" });
+        }
+
+        // Guard: ensure this tx_hash hasn't already confirmed a different payment
+        const { data: existing } = await supabase
+          .from("payments")
+          .select("id")
+          .eq("tx_id", match.transaction_hash)
+          .neq("id", data.id)
+          .maybeSingle();
+
+        if (existing) {
           return res.json({ status: "pending" });
         }
 

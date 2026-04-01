@@ -12,6 +12,18 @@ module.exports = {
         primary: "var(--color-primary)",
         secondary: "var(--color-secondary)",
         accent: "var(--color-accent)",
+        pluto: {
+          50:  "var(--pluto-50)",
+          100: "var(--pluto-100)",
+          200: "var(--pluto-200)",
+          300: "var(--pluto-300)",
+          400: "var(--pluto-400)",
+          500: "var(--pluto-500)",
+          600: "var(--pluto-600)",
+          700: "var(--pluto-700)",
+          800: "var(--pluto-800)",
+          900: "var(--pluto-900)",
+        },
         gray: {
           950: "#000000",
         },

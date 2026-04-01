@@ -109,7 +109,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 flex w-full justify-center rounded-2xl bg-[#0A0A0A] py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex h-14 w-full justify-center rounded-2xl bg-[var(--pluto-500)] py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white shadow-xl shadow-[var(--pluto-500)]/20 transition-all hover:bg-[var(--pluto-600)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Signing in..." : "Sign in to PLUTO"}
         </button>

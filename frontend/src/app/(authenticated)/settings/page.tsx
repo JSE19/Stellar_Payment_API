@@ -305,8 +305,8 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(item.id)}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-left transition-all ${
                 activeTab === item.id
-                  ? item.danger ? "bg-red-50 text-red-600 border border-red-200" : "bg-[#0A0A0A] text-white"
-                  : item.danger ? "text-red-500 hover:bg-red-50" : "text-[#6B6B6B] hover:bg-[#F5F5F5] hover:text-[#0A0A0A]"
+                  ? item.danger ? "bg-red-50 text-red-600 border border-red-200" : "bg-[var(--pluto-500)] text-white"
+                  : item.danger ? "text-red-500 hover:bg-red-50" : "text-[#6B6B6B] hover:bg-[var(--pluto-50)] hover:text-[var(--pluto-700)]"
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
@@ -373,7 +373,7 @@ export default function SettingsPage() {
                     <p className="text-xs font-bold text-yellow-800 uppercase tracking-widest">Confirm Action</p>
                     <p className="text-xs text-yellow-700">The old key will stop working immediately.</p>
                     <div className="flex gap-3">
-                      <button type="button" onClick={confirmRotate} disabled={rotating} className="flex-1 rounded-xl bg-[#0A0A0A] py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-50 transition-all">Confirm</button>
+                      <button type="button" onClick={confirmRotate} disabled={rotating} className="flex-1 rounded-xl bg-[var(--pluto-500)] py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] disabled:opacity-50 transition-all">Confirm</button>
                       <button type="button" onClick={() => setConfirming(false)} disabled={rotating} className="flex-1 rounded-xl border border-[#E8E8E8] bg-white py-2.5 text-xs font-bold uppercase tracking-widest text-[#6B6B6B] hover:bg-[#F5F5F5] disabled:opacity-50 transition-all">Cancel</button>
                     </div>
                   </div>
@@ -444,7 +444,7 @@ export default function SettingsPage() {
               {lowContrastWarning && <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700">Colors may not meet WCAG contrast targets. Consider adjusting.</div>}
 
               <div className="flex gap-3">
-                <button type="button" onClick={saveBranding} disabled={loadingBranding || savingBranding} className="flex-1 rounded-xl bg-[#0A0A0A] py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-50 transition-all">{savingBranding ? "Saving…" : "Save Branding"}</button>
+                <button type="button" onClick={saveBranding} disabled={loadingBranding || savingBranding} className="flex-1 rounded-xl bg-[var(--pluto-500)] py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] disabled:opacity-50 transition-all">{savingBranding ? "Saving…" : "Save Branding"}</button>
                 <button type="button" onClick={() => setIsPreviewOpen(true)} disabled={!apiKey} className="rounded-xl border border-[#E8E8E8] bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] hover:bg-[#F5F5F5] hover:text-[#0A0A0A] disabled:opacity-50 transition-all">Preview Receipt</button>
               </div>
             </div>
@@ -494,7 +494,7 @@ export default function SettingsPage() {
                 <input type="url" value={webhookUrl} onChange={(e) => { setWebhookUrl(e.target.value); setWebhookUrlError(validateWebhookUrl(e.target.value)); }} placeholder="https://example.com/hooks/pluto" className={`rounded-xl border bg-[#F9F9F9] px-4 py-3 font-mono text-sm text-[#0A0A0A] focus:outline-none focus:bg-white transition-all ${webhookUrlError ? "border-red-300 focus:border-red-500" : "border-[#E8E8E8] focus:border-[#0A0A0A]"}`} />
                 {webhookUrlError && <p className="text-xs text-red-500">{webhookUrlError}</p>}
                 <div className="flex gap-3">
-                  <button type="button" onClick={saveWebhookUrl} disabled={savingWebhook || loadingWebhook || !!webhookUrlError} className="flex-1 rounded-xl bg-[#0A0A0A] py-2.5 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-50 transition-all">{savingWebhook ? "Saving…" : "Save URL"}</button>
+                  <button type="button" onClick={saveWebhookUrl} disabled={savingWebhook || loadingWebhook || !!webhookUrlError} className="flex-1 rounded-xl bg-[var(--pluto-500)] py-2.5 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] disabled:opacity-50 transition-all">{savingWebhook ? "Saving…" : "Save URL"}</button>
                   <button type="button" onClick={testWebhook} disabled={testingWebhook || !webhookUrl} className="flex-1 rounded-xl border border-[#E8E8E8] bg-white py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] hover:bg-[#F5F5F5] hover:text-[#0A0A0A] disabled:opacity-50 transition-all">{testingWebhook ? "Testing…" : "Send Test"}</button>
                 </div>
               </div>
@@ -535,7 +535,7 @@ export default function SettingsPage() {
                     <p className="text-xs font-bold text-yellow-800 uppercase tracking-widest">Confirm Action</p>
                     <p className="text-xs text-yellow-700">The current secret will stop working immediately.</p>
                     <div className="flex gap-3">
-                      <button type="button" onClick={regenerateWebhookSecret} disabled={regeneratingSecret} className="flex-1 rounded-xl bg-[#0A0A0A] py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-50 transition-all">Confirm</button>
+                      <button type="button" onClick={regenerateWebhookSecret} disabled={regeneratingSecret} className="flex-1 rounded-xl bg-[var(--pluto-500)] py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] disabled:opacity-50 transition-all">Confirm</button>
                       <button type="button" onClick={() => setConfirmRegenSecret(false)} disabled={regeneratingSecret} className="flex-1 rounded-xl border border-[#E8E8E8] bg-white py-2.5 text-xs font-bold uppercase tracking-widest text-[#6B6B6B] hover:bg-[#F5F5F5] disabled:opacity-50 transition-all">Cancel</button>
                     </div>
                   </div>

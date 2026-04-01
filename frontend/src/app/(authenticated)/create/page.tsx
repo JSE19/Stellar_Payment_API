@@ -180,7 +180,7 @@ export default function CreatePaymentPage() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Link href={created.payment_link} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#0A0A0A] py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-black transition-all">
+                <Link href={created.payment_link} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--pluto-500)] py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] transition-all">
                   Open Link
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </Link>
@@ -321,7 +321,7 @@ export default function CreatePaymentPage() {
                   <button
                     type="submit"
                     disabled={loading || !isValid || retryAfter > 0}
-                    className="flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#0A0A0A] text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-[var(--pluto-500)] text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-[var(--pluto-500)]/20 transition-all hover:bg-[var(--pluto-600)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {loading ? (
                       <>

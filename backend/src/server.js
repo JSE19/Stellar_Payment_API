@@ -8,6 +8,7 @@ import { logger } from "./lib/logger.js";
 import { isHorizonReachable } from "./lib/stellar.js";
 import cron from "node-cron";
 import { archiveOldPaymentIntents } from "./lib/maintenance.js";
+import { startHorizonPoller, stopHorizonPoller } from "./lib/horizon-poller.js";
 
 initSentry();
 validateEnvironmentVariables();
@@ -65,6 +66,9 @@ async function startServer() {
   // Attach socket.io to the HTTP server
   io.attach(server);
 
+  // Start Horizon poller — auto-confirms pending payments
+  startHorizonPoller(io);
+
   // Schedule maintenance jobs: Run once daily at 2:00 AM
   const maintenanceJob = cron.schedule("0 2 * * *", () => {
     logger.info("Starting daily archival of old payment intents");
@@ -76,6 +80,7 @@ async function startServer() {
   function shutdown(signal) {
     logger.info({ signal }, "shutdown signal received");
     if (stopPoolMonitoring) stopPoolMonitoring();
+    stopHorizonPoller();
     maintenanceJob.stop();
     server.close(async () => {
       await closePool();

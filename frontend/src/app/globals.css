@@ -46,7 +46,22 @@ html {
   --border-subtle: #E8E8E8;
   --surface-subtle: #F9F9F9;
   --accent: #000000;
-  
+
+  /* ── Pluto planet palette ──────────────────────────────────────────────────
+     Inspired by NASA's New Horizons imagery: icy blue-gray surface,
+     deep navy shadows, pale frost highlights.
+  */
+  --pluto-900: #0D1B2E;   /* deep space navy */
+  --pluto-800: #1A2F4A;   /* dark ocean */
+  --pluto-700: #2D4A7A;   /* Pluto shadow blue */
+  --pluto-600: #3D6494;   /* mid blue */
+  --pluto-500: #4A6FA5;   /* Pluto steel blue — primary brand */
+  --pluto-400: #6B8FBF;   /* lighter steel */
+  --pluto-300: #8AAFD4;   /* icy blue */
+  --pluto-200: #B8D4E8;   /* frost */
+  --pluto-100: #DCE9F4;   /* pale ice */
+  --pluto-50:  #F0F6FB;   /* near-white ice */
+
   --font-sans: "Inconsolata", monospace, sans-serif;
   --font-display: "Space Mono", monospace, serif;
   

@@ -315,8 +315,10 @@ export async function findMatchingPayment({
   assetIssuer,
   memo,
   memoType,
+  createdAt, // ISO string — only match transactions after this time
 }) {
   const asset = resolveAsset(assetCode, assetIssuer);
+  const createdAtMs = createdAt ? new Date(createdAt).getTime() : 0;
 
   let page;
   try {
@@ -341,8 +343,14 @@ export async function findMatchingPayment({
       continue;
     }
 
-    // For path payments, verify the *received* asset and amount
-    // (the destination gets exactly what the merchant asked for)
+    // Only consider transactions that occurred after the payment intent was created
+    if (createdAtMs > 0 && payment.created_at) {
+      const txMs = new Date(payment.created_at).getTime();
+      if (txMs < createdAtMs) {
+        continue;
+      }
+    }
+
     if (!paymentMatchesAsset(payment, asset)) {
       continue;
     }
@@ -351,7 +359,6 @@ export async function findMatchingPayment({
       continue;
     }
 
-    // Verify payment destination matches recipient (important for multi-sig)
     if (payment.to !== recipient) {
       continue;
     }
@@ -368,7 +375,6 @@ export async function findMatchingPayment({
           continue;
         }
       } catch (_txErr) {
-        // Cannot verify memo — skip this candidate
         continue;
       }
     }
