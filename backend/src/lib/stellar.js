@@ -2,11 +2,12 @@ import "dotenv/config";
 import * as StellarSdk from "stellar-sdk";
 
 const NETWORK = (process.env.STELLAR_NETWORK || "testnet").toLowerCase();
-const HORIZON_URL =
+const HORIZON_URL = (
   process.env.STELLAR_HORIZON_URL ||
   (NETWORK === "public"
     ? "https://horizon.stellar.org"
-    : "https://horizon-testnet.stellar.org");
+    : "https://horizon-testnet.stellar.org")
+).replace(/\/$/, "");
 
 const server = new StellarSdk.Horizon.Server(HORIZON_URL);
 const HORIZON_HEALTH_TIMEOUT_MS = 2_000;

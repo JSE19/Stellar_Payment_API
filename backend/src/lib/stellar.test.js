@@ -245,7 +245,7 @@ describe('findMatchingPayment', () => {
 
     expect(result).toMatchObject({
       network: 'testnet',
-      horizonUrl: 'https://horizon-testnet.stellar.org/',
+      horizonUrl: 'https://horizon-testnet.stellar.org',
       operationCount: 1,
       lastLedgerBaseFee: 100,
       recommendedFeeStroops: 250,

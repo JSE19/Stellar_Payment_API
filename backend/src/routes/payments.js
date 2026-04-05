@@ -682,16 +682,6 @@ function createPaymentsRouter({
             data.merchants?.webhook_custom_headers ?? {}
           );
         }
-        sendReceiptEmail({
-          to: data.merchants?.notification_email,
-          businessName: data.merchants?.business_name || "Merchant",
-          amount: data.amount,
-          asset: data.asset,
-          recipient: data.recipient,
-          txId: match.transaction_hash,
-          paymentId: data.id,
-        });
-
         if (!webhookResult.ok && !webhookResult.skipped) {
           console.warn("Webhook failed", webhookResult);
         }

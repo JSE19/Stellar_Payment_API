@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useWallet } from "@/lib/wallet-context";
@@ -36,6 +37,13 @@ interface PaymentDetails {
   recipient: string; description: string | null; memo?: string | null;
   memo_type?: string | null; status: string; tx_id: string | null;
   created_at: string; branding_config?: BrandingConfig | null;
+  metadata?: {
+    failure_reason?: string;
+    expected_amount?: number | string;
+    received_amount?: number | string;
+    shortfall?: number | string;
+    [key: string]: unknown;
+  } | null;
 }
 interface PathQuote {
   source_asset: string; source_asset_issuer: string | null; source_amount: string;
@@ -110,7 +118,7 @@ function StatusPill({ status, t }: { status: string; t: ReturnType<typeof useTra
 
 function AssetIcon({ asset, logo, name }: { asset: string; logo?: string | null; name?: string | null }) {
   const a = asset.toUpperCase();
-  if (logo) return <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#E8E8E8] bg-[#F9F9F9]"><img src={logo} alt={name ?? asset} className="h-8 w-8 object-contain" /></span>;
+  if (logo) return <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#E8E8E8] bg-[#F9F9F9]"><Image src={logo} alt={name ?? asset} width={32} height={32} className="h-8 w-8 object-contain" /></span>;
   if (a === "XLM" || a === "NATIVE") return (
     <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#0A0A0A]">
       <svg viewBox="0 0 24 24" className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={1.8}>
@@ -346,7 +354,7 @@ export default function PaymentPage() {
           <div className="shrink-0 flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
               {branding.logo_url ? (
-                <img src={branding.logo_url} alt={branding.logo_alt ?? branding.merchant_name ?? "PLUTO"} className="h-6 w-auto max-w-[120px] object-contain" referrerPolicy="no-referrer" />
+                <Image src={branding.logo_url} alt={branding.logo_alt ?? branding.merchant_name ?? "PLUTO"} width={120} height={24} className="h-6 w-auto max-w-[120px] object-contain" referrerPolicy="no-referrer" />
               ) : (
                 <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#0A0A0A]">{branding.merchant_name ?? "PLUTO"}</span>
               )}
