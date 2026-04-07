@@ -16,7 +16,13 @@ validateEnvironmentVariables();
 const port = process.env.PORT || 4000;
 
 async function startServer() {
-  const redisClient = await connectRedisClient();
+  let redisClient = null;
+  try {
+    redisClient = await connectRedisClient();
+    logger.info("redis connected");
+  } catch (err) {
+    logger.warn({ err }, "redis unavailable, continuing with in-memory fallbacks");
+  }
 
   const { app, io } = await createApp({ redisClient });
 
@@ -34,7 +40,7 @@ async function startServer() {
 
     const results = await Promise.allSettled([
       probe("Database", () => pool.query("SELECT 1")),
-      probe("Redis", () => redisClient.ping()),
+      probe("Redis", () => (redisClient ? redisClient.ping() : Promise.reject(new Error("redis unavailable")))),
       probe("Horizon", () => isHorizonReachable())
     ]);
 

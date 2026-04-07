@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const DEFAULT_CREATE_PAYMENT_RATE_LIMIT_MAX = 50;
 const DEFAULT_CREATE_PAYMENT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
@@ -44,7 +44,7 @@ export function getCreatePaymentRateLimitKey(req) {
     return `merchant:${req.merchant.id}`;
   }
 
-  return req.ip;
+  return ipKeyGenerator(req.ip);
 }
 
 export function getRetryAfterSeconds(resetTime, now = new Date(), windowMs = DEFAULT_CREATE_PAYMENT_RATE_LIMIT_WINDOW_MS) {

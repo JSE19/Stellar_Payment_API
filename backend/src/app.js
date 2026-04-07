@@ -35,6 +35,7 @@ import { versionDeprecationMiddleware } from "./lib/version-deprecation.js";
 
 export async function createApp({ redisClient }) {
   const app = express();
+  const redisAvailable = Boolean(redisClient && redisClient.isOpen);
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -200,17 +201,17 @@ export async function createApp({ redisClient }) {
       services: {
         database: dbOk ? "ok" : "unavailable",
         horizon: horizonOk ? "ok" : "unavailable",
-        redis: "ok",
+        redis: redisAvailable ? "ok" : "unavailable",
       },
     });
   });
 
   const verifyPaymentRateLimit = createVerifyPaymentRateLimit({
-    store: createRedisRateLimitStore({ client: redisClient }),
+    store: redisAvailable ? createRedisRateLimitStore({ client: redisClient }) : undefined,
   });
 
   const merchantRegistrationRateLimit = createMerchantRegistrationRateLimit({
-    store: createRedisRateLimitStore({ client: redisClient }),
+    store: redisAvailable ? createRedisRateLimitStore({ client: redisClient }) : undefined,
   });
 
   // x402 pay-per-request on payment creation endpoints (custom middleware flow)
