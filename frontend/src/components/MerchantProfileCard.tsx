@@ -42,7 +42,7 @@ export default function MerchantProfileCard() {
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
-    window.location.href = "/";
+    window.location.href = "/login";
   };
 
   return (

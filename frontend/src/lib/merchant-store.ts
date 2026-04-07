@@ -231,8 +231,15 @@ export const useMerchantStore = create<MerchantStore>((set) => ({
   logout: () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(API_KEY_KEY);
+      localStorage.removeItem(MERCHANT_KEY);
     }
-    set({ token: null, session: null });
+    set({
+      token: null,
+      session: null,
+      apiKey: null,
+      merchant: null,
+    });
   },
 }));
 
