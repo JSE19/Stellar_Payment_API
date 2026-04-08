@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { randomUUID } from "node:crypto";
+import { logger } from "../lib/logger.js";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import { paymentService } from "../services/paymentService.js";
