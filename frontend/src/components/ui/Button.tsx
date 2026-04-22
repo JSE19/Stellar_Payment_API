@@ -7,7 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE_CLASSES =
-  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pluto-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pluto-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none";
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: "h-12 bg-pluto-500 text-white hover:bg-pluto-600",
@@ -34,6 +34,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || isLoading}
+        aria-busy={isLoading}
         className={`${BASE_CLASSES} ${variantClasses} ${className}`}
         {...props}
       >
@@ -41,7 +42,9 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <span className="flex items-center gap-1.5 sm:gap-2">
             <Spinner
               size="sm"
-              className={variant === "primary" ? "text-white" : "text-pluto-500"}
+              className={
+                variant === "primary" ? "text-white" : "text-pluto-500"
+              }
             />
             <span className="hidden xs:inline">Loading...</span>
           </span>
