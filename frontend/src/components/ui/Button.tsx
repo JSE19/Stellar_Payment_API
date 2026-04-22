@@ -7,12 +7,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE_CLASSES =
-  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-night";
+  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pluto-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "h-12 bg-mint text-black hover:bg-glow",
+  primary: "h-12 bg-pluto-500 text-white hover:bg-pluto-600",
   secondary:
-    "h-12 border border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-white",
+    "h-12 border border-pluto-200 bg-pluto-50 text-pluto-700 hover:border-pluto-500 hover:bg-pluto-500 hover:text-white",
 };
 
 const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -41,7 +41,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <span className="flex items-center gap-2">
             <Spinner
               size="sm"
-              className={variant === "primary" ? "text-black" : "text-mint"}
+              className={variant === "primary" ? "text-white" : "text-pluto-500"}
             />
             <span>Loading...</span>
           </span>
@@ -49,7 +49,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
           children
         )}
         {showPrimaryGlow && (
-          <div className="absolute inset-0 -z-10 bg-mint/20 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+          <div className="absolute inset-0 -z-10 bg-pluto-500/20 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
         )}
       </button>
     );
