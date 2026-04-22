@@ -7,7 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE_CLASSES =
-  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pluto-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none";
+  "group relative flex items-center justify-center rounded-xl px-6 font-bold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pluto-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none active:scale-95 active:transition-transform";
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: "h-12 bg-pluto-500 text-white hover:bg-pluto-600",
@@ -35,6 +35,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isLoading}
         aria-busy={isLoading}
+        aria-disabled={disabled || isLoading}
         className={`${BASE_CLASSES} ${variantClasses} ${className}`}
         {...props}
       >
