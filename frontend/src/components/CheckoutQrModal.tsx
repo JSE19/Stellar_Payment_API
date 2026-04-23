@@ -47,14 +47,14 @@ export default function CheckoutQrModal({
         <p className="text-sm text-slate-400">{t("qrModalDescription")}</p>
         <div
           ref={qrWrapperRef}
-          className="flex items-center justify-center rounded-2xl border border-white/10 bg-white p-5"
+          className="flex items-center justify-center rounded-2xl border border-white/10 bg-white p-5 transition-all hover:border-mint/30 hover:shadow-lg hover:shadow-mint/10"
         >
           <QRCodeCanvas value={qrValue} size={260} level="M" includeMargin />
         </div>
         <button
           type="button"
           onClick={handleDownload}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-mint/30 bg-mint/10 px-4 font-semibold text-mint transition-colors hover:bg-mint/15"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-mint/30 bg-mint/10 px-4 font-semibold text-mint transition-all hover:bg-mint/20 hover:border-mint/50 hover:shadow-md hover:shadow-mint/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-[#16171a]"
         >
           <svg
             className="h-4 w-4"
