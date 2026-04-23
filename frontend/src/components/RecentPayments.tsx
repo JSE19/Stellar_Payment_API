@@ -357,20 +357,37 @@ export default function RecentPayments({
         <div className="rounded-2xl border border-[#E8E8E8] bg-white p-4">
           <Skeleton height={40} borderRadius={12} className="mb-4" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {[1,2,3,4].map(i => <Skeleton key={i} height={40} borderRadius={10} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} height={40} borderRadius={10} />
+            ))}
           </div>
         </div>
         <div className="overflow-x-auto rounded-2xl border border-[#E8E8E8]">
           <div className="min-w-[760px]">
             <div className="border-b border-[#E8E8E8] bg-[#F9F9F9] px-5 py-3 flex gap-8">
-              {[80,100,120,80,60].map((w,i) => <Skeleton key={i} width={w} height={12} borderRadius={4} />)}
+              {[80, 100, 120, 80, 60].map((w, i) => (
+                <Skeleton key={i} width={w} height={12} borderRadius={4} />
+              ))}
             </div>
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="border-b border-[#E8E8E8] px-5 py-4 flex items-center gap-8">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="border-b border-[#E8E8E8] px-5 py-4 flex items-center gap-8"
+              >
                 <Skeleton width={70} height={22} borderRadius={999} />
                 <Skeleton width={100} height={16} borderRadius={4} />
-                <Skeleton width={140} height={14} borderRadius={4} className="hidden sm:block" />
-                <Skeleton width={90} height={14} borderRadius={4} className="hidden md:block" />
+                <Skeleton
+                  width={140}
+                  height={14}
+                  borderRadius={4}
+                  className="hidden sm:block"
+                />
+                <Skeleton
+                  width={90}
+                  height={14}
+                  borderRadius={4}
+                  className="hidden md:block"
+                />
                 <Skeleton width={50} height={14} borderRadius={4} />
               </div>
             ))}
@@ -431,8 +448,15 @@ export default function RecentPayments({
           </svg>
         </div>
         <p className="text-lg font-bold text-[#0A0A0A]">{t("emptyTitle")}</p>
-        <p className="text-sm text-[#6B6B6B] max-w-sm">{t("emptyDescription")}</p>
-        <Link href="/create" className="mt-2 rounded-xl bg-[var(--pluto-500)] px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] transition-all">{t("createPaymentLink")}</Link>
+        <p className="text-sm text-[#6B6B6B] max-w-sm">
+          {t("emptyDescription")}
+        </p>
+        <Link
+          href="/create"
+          className="mt-2 rounded-xl bg-[var(--pluto-500)] px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[var(--pluto-600)] transition-all"
+        >
+          {t("createPaymentLink")}
+        </Link>
       </div>
     );
   }
@@ -466,13 +490,27 @@ export default function RecentPayments({
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <select value={filters.status} onChange={e => handleFilterChange("status", e.target.value)}
-            className="rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] px-3 py-2.5 text-sm text-[#0A0A0A] focus:border-[#0A0A0A] focus:outline-none transition-all">
-            {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s === "all" ? t("allStatuses") : t(`statuses.${s}`)}</option>)}
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            className="rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] px-3 py-2.5 text-sm text-[#0A0A0A] focus:border-[#0A0A0A] focus:outline-none transition-all"
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s === "all" ? t("allStatuses") : t(`statuses.${s}`)}
+              </option>
+            ))}
           </select>
-          <select value={filters.asset} onChange={e => handleFilterChange("asset", e.target.value)}
-            className="rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] px-3 py-2.5 text-sm text-[#0A0A0A] focus:border-[#0A0A0A] focus:outline-none transition-all">
-            {ASSET_OPTIONS.map(a => <option key={a} value={a}>{a === "all" ? t("allAssets") : a}</option>)}
+          <select
+            value={filters.asset}
+            onChange={(e) => handleFilterChange("asset", e.target.value)}
+            className="rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] px-3 py-2.5 text-sm text-[#0A0A0A] focus:border-[#0A0A0A] focus:outline-none transition-all"
+          >
+            {ASSET_OPTIONS.map((a) => (
+              <option key={a} value={a}>
+                {a === "all" ? t("allAssets") : a}
+              </option>
+            ))}
           </select>
           <input
             type="date"
@@ -490,13 +528,45 @@ export default function RecentPayments({
 
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">{t("activeFilters")}</span>
-            {filters.search && <Chip label={`"${filters.search}"`} onRemove={() => clearFilter("search")} />}
-            {filters.status !== "all" && <Chip label={filters.status} onRemove={() => clearFilter("status")} />}
-            {filters.asset !== "all" && <Chip label={filters.asset} onRemove={() => clearFilter("asset")} />}
-            {filters.dateFrom && <Chip label={`From ${filters.dateFrom}`} onRemove={() => clearFilter("dateFrom")} />}
-            {filters.dateTo && <Chip label={`To ${filters.dateTo}`} onRemove={() => clearFilter("dateTo")} />}
-            <button onClick={() => updateFilters(DEFAULT_FILTERS)} className="ml-auto text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] underline underline-offset-4 hover:text-[#0A0A0A] transition-colors">{t("clearAll")}</button>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+              {t("activeFilters")}
+            </span>
+            {filters.search && (
+              <Chip
+                label={`"${filters.search}"`}
+                onRemove={() => clearFilter("search")}
+              />
+            )}
+            {filters.status !== "all" && (
+              <Chip
+                label={filters.status}
+                onRemove={() => clearFilter("status")}
+              />
+            )}
+            {filters.asset !== "all" && (
+              <Chip
+                label={filters.asset}
+                onRemove={() => clearFilter("asset")}
+              />
+            )}
+            {filters.dateFrom && (
+              <Chip
+                label={`From ${filters.dateFrom}`}
+                onRemove={() => clearFilter("dateFrom")}
+              />
+            )}
+            {filters.dateTo && (
+              <Chip
+                label={`To ${filters.dateTo}`}
+                onRemove={() => clearFilter("dateTo")}
+              />
+            )}
+            <button
+              onClick={() => updateFilters(DEFAULT_FILTERS)}
+              className="ml-auto text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] underline underline-offset-4 hover:text-[#0A0A0A] transition-colors"
+            >
+              {t("clearAll")}
+            </button>
           </div>
         )}
       </div>
@@ -504,11 +574,30 @@ export default function RecentPayments({
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-[#6B6B6B] font-medium">
-          {t("showingResults", { shown: sortedPayments.length, total: totalCount })} {hasActiveFilters ? t("filteredSuffix") : ""}
+          {t("showingResults", {
+            shown: sortedPayments.length,
+            total: totalCount,
+          })}{" "}
+          {hasActiveFilters ? t("filteredSuffix") : ""}
         </p>
-        <button onClick={handleDownloadCSV} disabled={!sortedPayments.length}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E8E8E8] bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] hover:bg-[#F5F5F5] disabled:opacity-40 sm:w-auto transition-all">
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <button
+          onClick={handleDownloadCSV}
+          disabled={!sortedPayments.length}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E8E8E8] bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] hover:bg-[#F5F5F5] disabled:opacity-40 sm:w-auto transition-all"
+        >
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
           Export CSV
         </button>
       </div>
@@ -518,44 +607,114 @@ export default function RecentPayments({
         <table className="min-w-[760px] w-full text-left text-sm">
           <thead>
             <tr className="border-b border-[#E8E8E8] bg-[#F9F9F9] hover:bg-[#F5F5F5] transition-colors">
-              <th className="px-3 py-3 sm:px-5"><SortBtn active={sortColumn==="status"} dir={sortDirection} onClick={() => handleSort("status")}>{t("tableStatus")}</SortBtn></th>
-              <th className="px-3 py-3 sm:px-5"><SortBtn active={sortColumn==="amount"} dir={sortDirection} onClick={() => handleSort("amount")}>{t("tableAmount")}</SortBtn></th>
-              <th className="px-3 py-3 sm:px-5"><SortBtn active={sortColumn==="recipient"} dir={sortDirection} onClick={() => handleSort("recipient")}>{t("tableRecipient")}</SortBtn></th>
-              <th className="px-3 py-3 sm:px-5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">Description</th>
-              <th className="px-3 py-3 sm:px-5"><SortBtn active={sortColumn==="created_at"} dir={sortDirection} onClick={() => handleSort("created_at")}>{t("tableDate")}</SortBtn></th>
-              <th className="px-3 py-3 sm:px-5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">Actions</th>
+              <th className="px-3 py-3 sm:px-5">
+                <SortBtn
+                  active={sortColumn === "status"}
+                  dir={sortDirection}
+                  onClick={() => handleSort("status")}
+                >
+                  {t("tableStatus")}
+                </SortBtn>
+              </th>
+              <th className="px-3 py-3 sm:px-5">
+                <SortBtn
+                  active={sortColumn === "amount"}
+                  dir={sortDirection}
+                  onClick={() => handleSort("amount")}
+                >
+                  {t("tableAmount")}
+                </SortBtn>
+              </th>
+              <th className="px-3 py-3 sm:px-5">
+                <SortBtn
+                  active={sortColumn === "recipient"}
+                  dir={sortDirection}
+                  onClick={() => handleSort("recipient")}
+                >
+                  {t("tableRecipient")}
+                </SortBtn>
+              </th>
+              <th className="px-3 py-3 sm:px-5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+                Description
+              </th>
+              <th className="px-3 py-3 sm:px-5">
+                <SortBtn
+                  active={sortColumn === "created_at"}
+                  dir={sortDirection}
+                  onClick={() => handleSort("created_at")}
+                >
+                  {t("tableDate")}
+                </SortBtn>
+              </th>
+              <th className="px-3 py-3 sm:px-5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F0F0F0]">
             {sortedPayments.length === 0 ? (
-              <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-[#6B6B6B]">No payments match your filters.</td></tr>
-            ) : sortedPayments.map(payment => (
-              <tr key={payment.id}
-                onClick={() => { setSelectedPayment(payment.id); setIsSheetOpen(true); }}
-                className={`group cursor-pointer border-l-2 border-l-transparent transition-all duration-200 ease-in-out hover:bg-[#F9F9F9] hover:shadow-sm hover:border-l-[var(--pluto-500)] active:bg-[#F5F5F5] active:scale-[0.995] ${flashedIds.has(payment.id) ? "bg-emerald-50 border-l-emerald-500" : ""}`}
-              >
-                <td className="px-3 py-4 sm:px-5"><StatusBadge status={payment.status} /></td>
-                <td className="px-3 py-4 sm:px-5">
-                  <span className="font-bold text-[#0A0A0A]">{payment.amount}</span>
-                  <span className="ml-1.5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">{payment.asset}</span>
-                </td>
-                <td className="px-3 py-4 sm:px-5">
-                  <code className="font-mono text-xs text-[#6B6B6B]">{payment.recipient.slice(0,8)}…{payment.recipient.slice(-6)}</code>
-                </td>
-                <td className="px-3 py-4 sm:px-5 text-sm text-[#6B6B6B] max-w-[180px] truncate">
-                  {payment.description || <span className="text-[#C0C0C0]">—</span>}
-                </td>
-                <td className="px-3 py-4 sm:px-5 text-sm text-[#6B6B6B] whitespace-nowrap">
-                  {new Date(payment.created_at).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}
-                </td>
-                <td className="px-3 py-4 sm:px-5">
-                  <button onClick={e => { e.stopPropagation(); setSelectedPayment(payment.id); setIsSheetOpen(true); }}
-                    className="rounded-lg border border-[#E8E8E8] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-[var(--pluto-50)] hover:border-[var(--pluto-400)] hover:text-[var(--pluto-700)] hover:shadow-sm active:scale-95 transition-all duration-200">
-                    View →
-                  </button>
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-5 py-12 text-center text-sm text-[#6B6B6B]"
+                >
+                  No payments match your filters.
                 </td>
               </tr>
-            )))}
+            ) : (
+              sortedPayments.map((payment) => (
+                <tr
+                  key={payment.id}
+                  onClick={() => {
+                    setSelectedPayment(payment.id);
+                    setIsSheetOpen(true);
+                  }}
+                  className={`group cursor-pointer border-l-2 border-l-transparent transition-all duration-200 ease-in-out hover:bg-[#F9F9F9] hover:shadow-sm hover:border-l-[var(--pluto-500)] active:bg-[#F5F5F5] active:scale-[0.995] ${flashedIds.has(payment.id) ? "bg-emerald-50 border-l-emerald-500" : ""}`}
+                >
+                  <td className="px-3 py-4 sm:px-5">
+                    <StatusBadge status={payment.status} />
+                  </td>
+                  <td className="px-3 py-4 sm:px-5">
+                    <span className="font-bold text-[#0A0A0A]">
+                      {payment.amount}
+                    </span>
+                    <span className="ml-1.5 text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B]">
+                      {payment.asset}
+                    </span>
+                  </td>
+                  <td className="px-3 py-4 sm:px-5">
+                    <code className="font-mono text-xs text-[#6B6B6B]">
+                      {payment.recipient.slice(0, 8)}…
+                      {payment.recipient.slice(-6)}
+                    </code>
+                  </td>
+                  <td className="px-3 py-4 sm:px-5 text-sm text-[#6B6B6B] max-w-[180px] truncate">
+                    {payment.description || (
+                      <span className="text-[#C0C0C0]">—</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-4 sm:px-5 text-sm text-[#6B6B6B] whitespace-nowrap">
+                    {new Date(payment.created_at).toLocaleDateString(locale, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="px-3 py-4 sm:px-5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPayment(payment.id);
+                        setIsSheetOpen(true);
+                      }}
+                      className="rounded-lg border border-[#E8E8E8] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-[var(--pluto-50)] hover:border-[var(--pluto-400)] hover:text-[var(--pluto-700)] hover:shadow-sm active:scale-95 transition-all duration-200"
+                    >
+                      View →
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -580,8 +739,11 @@ export default function RecentPayments({
             </select>
           </div>
           <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:flex-nowrap">
-            <button disabled={filters.page <= 1} onClick={() => handleFilterChange("page", filters.page - 1)}
-              className="rounded-xl border border-[#E8E8E8] bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+            <button
+              disabled={filters.page <= 1}
+              onClick={() => handleFilterChange("page", filters.page - 1)}
+              className="rounded-xl border border-[#E8E8E8] bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#0A0A0A] hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               ← Prev
             </button>
             <span className="text-xs font-medium text-[#6B6B6B] px-1 sm:px-2 whitespace-nowrap">

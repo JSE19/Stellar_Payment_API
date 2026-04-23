@@ -50,7 +50,7 @@ const PasswordStrengthIndicator = React.memo(
 
 PasswordStrengthIndicator.displayName = "PasswordStrengthIndicator";
 
-export default React.memo(function RegistrationForm() {
+const RegistrationForm = React.memo(function RegistrationForm() {
   const setToken = useSetMerchantToken();
   const setApiKey = useSetMerchantApiKey();
   const setMerchant = useSetMerchantMetadata();
@@ -402,3 +402,5 @@ export default React.memo(function RegistrationForm() {
 });
 
 RegistrationForm.displayName = "RegistrationForm";
+
+export default RegistrationForm;

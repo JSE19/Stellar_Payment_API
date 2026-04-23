@@ -414,7 +414,7 @@ export default function PaymentDetailModal({
         aria-modal="true"
         aria-label="Payment details"
         tabIndex={-1}
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col bg-[#050608] shadow-2xl outline-none backdrop-blur-xl transition-transform duration-300 ease-in-out ${visible ? "translate-x-0" : "translate-x-full"
+        className={`dark fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col bg-[#050608] shadow-2xl outline-none backdrop-blur-xl transition-transform duration-300 ease-in-out ${visible ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* Header */}
@@ -548,18 +548,21 @@ export default function PaymentDetailModal({
                 {/* QR Code — only for unsettled payments */}
                 {!isSettled && !isFailed && (
                   <DetailRow label="Scan to Pay">
-                    <div className="flex items-center justify-center rounded-xl border border-white/10 bg-white p-4">
-                      <QRCodeSVG
-                        value={payment.recipient}
-                        size={140}
-                        level="M"
-                        bgColor="#ffffff"
-                        fgColor="#000000"
-                      />
+                    <div className="flex flex-col items-center gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:border-white/20">
+                      <div className="rounded-xl bg-white p-3 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+                        <QRCodeSVG
+                          value={payment.recipient}
+                          size={512}
+                          level="H"
+                          bgColor="#ffffff"
+                          fgColor="#000000"
+                          style={{ width: "100%", height: "auto", maxWidth: "160px" }}
+                        />
+                      </div>
+                      <p className="max-w-[200px] text-center text-[10px] uppercase tracking-wider text-slate-500">
+                        Scan with Freighter or any Stellar wallet
+                      </p>
                     </div>
-                    <p className="text-center text-xs text-slate-500">
-                      Scan with Freighter or any Stellar wallet
-                    </p>
                   </DetailRow>
                 )}
 

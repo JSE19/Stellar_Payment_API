@@ -8,15 +8,12 @@ import {
   useHydrateMerchantStore,
   useMerchantApiKey,
 } from "@/lib/merchant-store";
-import { useTranslations } from "next-intl";
 import FirstApiKeyModal from "@/components/FirstApiKeyModal";
 import PaymentMetrics from "@/components/PaymentMetrics";
 import RecentPayments from "@/components/RecentPayments";
-import WithdrawModal from "@/components/WithdrawModal";
 
 export default function DashboardPage() {
   const [isFirstKeyModalOpen, setIsFirstKeyModalOpen] = useState(false);
-  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const hydrated = useMerchantHydrated();
   const apiKey = useMerchantApiKey();
   const [loading, setLoading] = useState(true);
@@ -118,26 +115,6 @@ export default function DashboardPage() {
             </svg>
             Settings
           </Link>
-
-          <button
-            onClick={() => setIsWithdrawOpen(true)}
-            className="flex items-center gap-2.5 rounded-xl border border-mint/20 bg-mint/5 px-5 py-3 text-sm font-medium text-mint transition-all hover:bg-mint/10"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-              />
-            </svg>
-            Withdraw
-          </button>
         </div>
       </header>
 
@@ -190,10 +167,6 @@ export default function DashboardPage() {
       <FirstApiKeyModal
         isOpen={isFirstKeyModalOpen}
         onClose={() => setIsFirstKeyModalOpen(false)}
-      />
-      <WithdrawModal
-        isOpen={isWithdrawOpen}
-        onClose={() => setIsWithdrawOpen(false)}
       />
     </div>
   );

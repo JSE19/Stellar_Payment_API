@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import CopyButton from "@/components/CopyButton";
+import CheckoutQrModal from "@/components/CheckoutQrModal";
+import WalletSelector from "@/components/WalletSelector";
 
 export default function VRTPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-black p-10 text-white">
@@ -35,20 +38,34 @@ export default function VRTPage() {
         <Input label="Disabled Input" value="Cannot edit me" disabled data-testid="vrt-input-disabled" />
       </section>
 
-      <section className="mb-10 space-y-4" id="vrt-modals">
-        <h2 className="text-lg font-bold">Modals</h2>
-        <Button variant="secondary" onClick={() => setIsModalOpen(true)} data-testid="open-modal-btn">
-          Open VRT Modal
-        </Button>
+      <section className="mb-10 space-y-4" id="vrt-qr">
+        <h2 className="text-lg font-bold">QR Displays</h2>
+        <div className="flex gap-4">
+          <Button variant="secondary" onClick={() => setIsQrModalOpen(true)} data-testid="open-qr-modal-btn">
+            Open Checkout QR
+          </Button>
+        </div>
 
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="VRT Check">
-          <p className="mb-4">This is a modal used for Visual Regression Testing.</p>
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button variant="primary" onClick={() => setIsModalOpen(false)}>Confirm</Button>
-          </div>
-        </Modal>
+        <div className="max-w-sm rounded-2xl border border-white/10 bg-white/5 p-6">
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-500">Inline Wallet QR</h3>
+          <WalletSelector networkPassphrase="Test SDF Network" onConnected={() => { }} />
+        </div>
+
+        <CheckoutQrModal
+          isOpen={isQrModalOpen}
+          onClose={() => setIsQrModalOpen(false)}
+          qrValue="web+stellar:pay?destination=GABCD...&amount=100"
+          paymentId="vrt-test-payment"
+        />
       </section>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="VRT Check">
+        <p className="mb-4">This is a modal used for Visual Regression Testing.</p>
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+          <Button variant="primary" onClick={() => setIsModalOpen(false)}>Confirm</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

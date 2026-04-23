@@ -91,7 +91,7 @@ function LoadingSkeleton() {
               </div>
             </div>
             <div className="flex flex-col gap-4 p-6">
-              {[1,2,3].map(i => <Skeleton key={i} height={48} borderRadius={12} />)}
+              {[1, 2, 3].map(i => <Skeleton key={i} height={48} borderRadius={12} />)}
             </div>
           </div>
         </div>
@@ -102,10 +102,10 @@ function LoadingSkeleton() {
 
 function StatusPill({ status, t }: { status: string; t: ReturnType<typeof useTranslations> }) {
   const map: Record<string, { label: string; dot: string; cls: string }> = {
-    pending:   { label: t("status.pending"),   dot: "bg-yellow-500", cls: "border-yellow-200 bg-yellow-50 text-yellow-700" },
+    pending: { label: t("status.pending"), dot: "bg-yellow-500", cls: "border-yellow-200 bg-yellow-50 text-yellow-700" },
     confirmed: { label: t("status.confirmed"), dot: "bg-emerald-500", cls: "border-emerald-200 bg-emerald-50 text-emerald-700" },
     completed: { label: t("status.completed"), dot: "bg-emerald-500", cls: "border-emerald-200 bg-emerald-50 text-emerald-700" },
-    failed:    { label: t("status.failed"),    dot: "bg-red-500",     cls: "border-red-200 bg-red-50 text-red-700" },
+    failed: { label: t("status.failed"), dot: "bg-red-500", cls: "border-red-200 bg-red-50 text-red-700" },
   };
   const s = map[status.toLowerCase()] ?? { label: status, dot: "bg-[#6B6B6B]", cls: "border-[#E8E8E8] bg-[#F9F9F9] text-[#6B6B6B]" };
   return (
@@ -204,7 +204,7 @@ export default function PaymentPage() {
     if (["confirmed", "completed", "failed"].includes(payment.status)) return;
     const es = new EventSource(`${API_URL}/api/stream/${paymentId}`);
     es.addEventListener("payment.confirmed", (event) => {
-      try { const d = JSON.parse(event.data); setPayment((p) => p ? { ...p, status: d.status, tx_id: d.tx_id } : null); toast.success(t("paymentConfirmed")); es.close(); } catch {}
+      try { const d = JSON.parse(event.data); setPayment((p) => p ? { ...p, status: d.status, tx_id: d.tx_id } : null); toast.success(t("paymentConfirmed")); es.close(); } catch { }
     });
     es.onerror = () => es.close();
     return () => es.close();
@@ -221,7 +221,7 @@ export default function PaymentPage() {
         if (data.payment && data.payment.status !== payment.status) {
           setPayment(data.payment);
         }
-      } catch {}
+      } catch { }
     }, 5000);
     return () => clearInterval(id);
   }, [paymentId, payment, loading]);
@@ -274,7 +274,7 @@ export default function PaymentPage() {
         const sorted = [...supported].sort((a, b) => parseFloat(balances.find(x => x.code === b)?.balance || "0") - parseFloat(balances.find(x => x.code === a)?.balance || "0"));
         setSortedSourceAssets(sorted);
         if (sorted.length > 0) setSourceAsset(sorted[0]);
-      } catch {}
+      } catch { }
     };
     load();
   }, [activeProvider, assetMetadata, walletPublicKey]);
@@ -327,7 +327,7 @@ export default function PaymentPage() {
       }
       setPayment({ ...payment, status: "completed", tx_id: result.hash });
       toast.success(t("paymentSent"));
-      setTimeout(async () => { try { await fetch(`${API_URL}/api/verify-payment/${paymentId}`, { method: "POST" }); } catch {} }, 2000);
+      setTimeout(async () => { try { await fetch(`${API_URL}/api/verify-payment/${paymentId}`, { method: "POST" }); } catch { } }, 2000);
     } catch {
       const msg = paymentError ?? t("paymentFailed");
       setActionError(msg); toast.error(msg);
@@ -454,8 +454,15 @@ export default function PaymentPage() {
               {!isSettled && !isFailed && (
                 <DetailRow label={t("scanToPay")}>
                   <div className="flex items-center gap-4 rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] p-4">
-                    <div className="rounded-lg border border-[#E8E8E8] bg-white p-2 shrink-0">
-                      <QRCodeSVG value={paymentIntentUri} size={72} level="M" bgColor="#ffffff" fgColor="#0A0A0A" />
+                    <div className="rounded-lg border border-[#E8E8E8] bg-white p-2 shrink-0 transition-transform hover:scale-105 active:scale-95 duration-200">
+                      <QRCodeSVG
+                        value={paymentIntentUri}
+                        size={256}
+                        level="H"
+                        bgColor="#ffffff"
+                        fgColor="#0A0A0A"
+                        style={{ width: "72px", height: "72px" }}
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <p className="text-xs text-[#6B6B6B]">{t("scanDescription")}</p>
@@ -533,7 +540,7 @@ export default function PaymentPage() {
                       </button>
                     </>
                   ) : (
-                    <WalletSelector networkPassphrase={process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ?? "Test SDF Network ; September 2015"} onConnected={() => {}} />
+                    <WalletSelector networkPassphrase={process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ?? "Test SDF Network ; September 2015"} onConnected={() => { }} />
                   )}
                 </div>
               )}
