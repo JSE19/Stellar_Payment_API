@@ -98,18 +98,6 @@ export default function PaymentMetrics({
   const hydrated = useMerchantHydrated();
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleExport = async (format: ExportFormat) => {
-    if (!chartContainerRef.current) return;
-    try {
-      setExporting(true);
-      await exportChart(chartContainerRef, format, `metrics-export-${new Date().getTime()}`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("exportFailed"));
-    } finally {
-      setExporting(false);
-    }
-  };
-
   useHydrateMerchantStore();
 
   useEffect(() => {
