@@ -1,19 +1,48 @@
 "use client";
 
 import { useThemeState, useThemeActions } from "@/lib/theme-context";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ThemeToggle() {
   const { theme, resolvedTheme, isMounted, isLoading, error } = useThemeState();
   const { toggleTheme, clearError } = useThemeActions();
+  const [announcement, setAnnouncement] = useState<string>("");
 
   const handleThemeToggle = useCallback(() => {
     if (error) {
       clearError();
+      setAnnouncement("Error cleared. Attempting to toggle theme.");
+      return;
     }
+
+    // Announce the theme change before toggling
+    const nextTheme = getNextTheme();
+    setAnnouncement(`Switching to ${nextTheme} theme.`);
+
     toggleTheme();
-  }, [toggleTheme, error, clearError]);
+  }, [toggleTheme, error, clearError, theme]);
+
+  /**
+   * Get the next theme that will be activated
+   */
+  const getNextTheme = useCallback((): string => {
+    const themes = ["light", "dark", "system"];
+    const currentIndex = theme ? themes.indexOf(theme) : 0;
+    const nextIndex = (currentIndex + 1) % themes.length;
+    const nextTheme = themes[nextIndex];
+    return nextTheme === "system" ? `system (${resolvedTheme})` : nextTheme;
+  }, [theme, resolvedTheme]);
+
+  /**
+   * Announce theme changes to screen readers
+   */
+  useEffect(() => {
+    if (isMounted && !isLoading && !error) {
+      const currentThemeDesc = theme === "system" ? `system (${resolvedTheme})` : theme || "system";
+      setAnnouncement(`Current theme: ${currentThemeDesc}`);
+    }
+  }, [theme, resolvedTheme, isMounted, isLoading, error]);
 
   if (!isMounted || isLoading) {
     return (
@@ -28,28 +57,42 @@ export default function ThemeToggle() {
   }
 
   const getAriaLabel = () => {
-    if (error) return "Theme toggle with error, click to retry";
-    return `Current theme: ${theme || 'system'}, click to switch theme`;
+    if (error) return "Theme toggle with error, press to retry switching theme";
+    const currentThemeDesc = theme === "system" ? `system (${resolvedTheme})` : theme || "system";
+    return `Theme toggle, current theme: ${currentThemeDesc}, press to switch to next theme`;
   };
 
   const getTitle = () => {
-    if (error) return `Theme error: ${error}. Click to retry.`;
+    if (error) return `Theme error: ${error}. Press to retry.`;
     if (theme === 'system') return `Theme: System (${resolvedTheme})`;
     return `Theme: ${theme}`;
   };
 
   return (
-    <button
-      onClick={handleThemeToggle}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg border transition-all active:scale-95 ${
-        error 
-          ? "border-red-500/50 bg-red-500/10 hover:bg-red-500/20" 
-          : "border-white/10 bg-white/5 hover:bg-white/10"
-      }`}
-      aria-label={getAriaLabel()}
-      title={getTitle()}
-      disabled={isLoading}
-    >
+    <>
+      {/* Screen reader announcement */}
+      <div
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {announcement}
+      </div>
+
+      <button
+        onClick={handleThemeToggle}
+        className={`flex h-9 w-9 items-center justify-center rounded-lg border transition-all active:scale-95 ${
+          error
+            ? "border-red-500/50 bg-red-500/10 hover:bg-red-500/20"
+            : "border-white/10 bg-white/5 hover:bg-white/10"
+        }`}
+        aria-label={getAriaLabel()}
+        aria-describedby="theme-description"
+        title={getTitle()}
+        disabled={isLoading}
+        role="button"
+      >
       <AnimatePresence mode="wait" initial={false}>
         {error ? (
           <motion.svg
@@ -142,6 +185,11 @@ export default function ThemeToggle() {
           </motion.div>
         )}
       </AnimatePresence>
-    </button>
+
+      {/* Hidden description for screen readers */}
+      <div id="theme-description" className="sr-only">
+        Use this button to cycle through light, dark, and system themes. The system theme follows your device preference.
+      </div>
+    </>
   );
 }

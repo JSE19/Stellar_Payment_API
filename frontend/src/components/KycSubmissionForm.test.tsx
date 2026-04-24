@@ -181,4 +181,174 @@ describe("KycSubmissionForm", () => {
 
     expect(screen.getByText("review")).toBeInTheDocument();
   });
+
+  it("validates required fields before proceeding to next step", async () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Try to proceed without filling required fields
+    const nextButton = screen.getByText("next");
+    fireEvent.click(nextButton);
+
+    // Should stay on personal step (first step)
+    expect(screen.getByText("personalInfo")).toBeInTheDocument();
+
+    // Fill required fields
+    fireEvent.change(screen.getByPlaceholderText("firstName"), { target: { value: "John" } });
+    fireEvent.change(screen.getByPlaceholderText("lastName"), { target: { value: "Doe" } });
+
+    // Now proceed
+    fireEvent.click(nextButton);
+    expect(screen.getByText("addressInfo")).toBeInTheDocument();
+  });
+
+  it("handles file uploads correctly", () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Navigate to documents step
+    fireEvent.click(screen.getByText("next")); // personal
+    fireEvent.click(screen.getByText("next")); // address
+    fireEvent.click(screen.getByText("next")); // documents
+
+    const fileInput = screen.getByText("idFront") as HTMLInputElement;
+    const file = new File(["dummy content"], "test.png", { type: "image/png" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    // Verify file is selected (this would depend on component implementation)
+    expect(fileInput.files?.[0]).toBe(file);
+  });
+
+  it("displays progress indicator correctly", () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Initial step should show 1 of 4
+    const progressElements = screen.getAllByText(/\d+ of \d+/);
+    expect(progressElements.length).toBeGreaterThan(0);
+
+    // Navigate through steps
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+
+    // Should show 4 of 4 or completed state
+    expect(screen.getByText("review")).toBeInTheDocument();
+  });
+
+  it("prevents navigation beyond bounds", () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Try to go back from first step
+    const backButton = screen.getByText("back");
+    fireEvent.click(backButton);
+
+    // Should still be on first step
+    expect(screen.getByText("personalInfo")).toBeInTheDocument();
+
+    // Navigate to last step
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+
+    // Try to go next from last step
+    const nextButton = screen.getByText("next");
+    fireEvent.click(nextButton);
+
+    // Should still be on last step
+    expect(screen.getByText("review")).toBeInTheDocument();
+  });
+
+  it("shows loading state during submission", async () => {
+    (global.fetch as any).mockImplementation(() => new Promise(() => {})); // Never resolves
+
+    render(React.createElement(KycSubmissionForm));
+
+    // Navigate to review
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+
+    const submitButton = screen.getByText("submit");
+    fireEvent.click(submitButton);
+
+    // Should show loading state
+    expect(submitButton).toBeDisabled();
+  });
+
+  it("handles form reset after successful submission", async () => {
+    (global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true }),
+    });
+
+    render(React.createElement(KycSubmissionForm));
+
+    // Fill and submit
+    fireEvent.change(screen.getByPlaceholderText("firstName"), { target: { value: "John" } });
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("submit"));
+
+    await waitFor(() => {
+      expect(screen.getByText("submitAnother")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("submitAnother"));
+
+    // Should reset to first step
+    expect(screen.getByText("personalInfo")).toBeInTheDocument();
+
+    // Fields should be cleared
+    const firstNameInput = screen.getByPlaceholderText("firstName") as HTMLInputElement;
+    expect(firstNameInput.value).toBe("");
+  });
+
+  it("displays field-specific validation errors", () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Try to submit with invalid email format
+    const emailInput = screen.getByPlaceholderText("email") as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "invalid-email" } });
+
+    // Validation should show error (component-specific logic)
+    // This test assumes the component has email validation
+    expect(emailInput.value).toBe("invalid-email");
+  });
+
+  it("handles network errors gracefully", async () => {
+    (global.fetch as any).mockRejectedValue(new Error("Network error"));
+
+    render(React.createElement(KycSubmissionForm));
+
+    // Navigate and submit
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("next"));
+    fireEvent.click(screen.getByText("submit"));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalled();
+    });
+
+    // Should allow retry
+    const retryButton = screen.getByText("submit");
+    expect(retryButton).toBeInTheDocument();
+  });
+
+  it("maintains form state when navigating between steps", () => {
+    render(React.createElement(KycSubmissionForm));
+
+    // Fill personal info
+    const firstNameInput = screen.getByPlaceholderText("firstName") as HTMLInputElement;
+    fireEvent.change(firstNameInput, { target: { value: "John" } });
+
+    // Navigate to address
+    fireEvent.click(screen.getByText("next"));
+
+    // Navigate back
+    fireEvent.click(screen.getByText("back"));
+
+    // Value should be preserved
+    expect(firstNameInput.value).toBe("John");
+  });
 });

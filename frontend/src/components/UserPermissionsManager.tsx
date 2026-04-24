@@ -22,7 +22,7 @@ interface Permission {
  */
 interface UserPermissionsManagerProps {
   userId: string;
-  onPermissionsChange?: (permissions: Permission[]) => void;
+  onPermissionsChange?: (permissions: Permission[]) => void | Promise<void>;
   isReadOnly?: boolean;
   showCategories?: boolean;
 }
@@ -148,37 +148,49 @@ export const UserPermissionsManager: React.FC<UserPermissionsManagerProps> =
     );
 
     /**
-     * Handle permission toggle
+     * Handle permission toggle with optimistic updates
      */
     const handlePermissionChange = useCallback(
-      (permissionId: string) => {
+      async (permissionId: string) => {
         if (isReadOnly) {
           toast.error(t("permissions.readOnly") || "Read-only mode");
           return;
         }
 
-        setPermissions((prev) =>
-          prev.map((perm) =>
-            perm.id === permissionId
-              ? {
-                  ...perm,
-                  granted: !perm.granted,
-                  lastModified: new Date(),
-                }
-              : perm
-          )
-        );
+        // Store previous state for rollback
+        const previousPermissions = [...permissions];
 
-        const updatedPermissions = permissions.map((perm) =>
+        // Optimistically update local state
+        const optimisticPermissions = permissions.map((perm) =>
           perm.id === permissionId
-            ? { ...perm, granted: !perm.granted }
+            ? {
+                ...perm,
+                granted: !perm.granted,
+                lastModified: new Date(),
+              }
             : perm
         );
 
-        onPermissionsChange?.(updatedPermissions);
-        toast.success(
-          t("permissions.updated") || "Permission updated successfully"
-        );
+        setPermissions(optimisticPermissions);
+
+        try {
+          // Attempt to update permissions via callback
+          await onPermissionsChange?.(optimisticPermissions);
+
+          // Show success toast if no error
+          toast.success(
+            t("permissions.updated") || "Permission updated successfully"
+          );
+        } catch (error) {
+          // Revert optimistic update on error
+          setPermissions(previousPermissions);
+
+          toast.error(
+            t("permissions.updateFailed") || "Failed to update permission. Please try again."
+          );
+
+          console.error("Permission update failed:", error);
+        }
       },
       [isReadOnly, permissions, onPermissionsChange, t]
     );
