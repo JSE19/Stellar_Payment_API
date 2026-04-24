@@ -1,7 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, fireEvent } from "@testing-library/react";
 import TransactionFilterSidebar from "./TransactionFilterSidebar";
 import React from "react";
 import "@testing-library/jest-dom/vitest";
@@ -13,11 +12,6 @@ vi.mock("framer-motion", () => ({
     aside: ({ children, ...props }: any) => <aside {...props}>{children}</aside>,
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
-}));
-
-// Mock next-intl
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
 }));
 
 describe("TransactionFilterSidebar", () => {
@@ -67,28 +61,24 @@ describe("TransactionFilterSidebar", () => {
 
       const searchInputs = screen.getAllByLabelText(/Search/i);
       expect(searchInputs[0]).toHaveValue("test-id");
-      
+
       const statusSelects = screen.getAllByLabelText(/Status/i);
       expect(statusSelects[0]).toHaveValue("confirmed");
 
-      // Asset is using buttons, check for active class or just existence
-      const usdcButtons = screen.getAllByRole("button", { name: /USDC/i });
+      const usdcButtons = screen.getAllByRole("button", { name: /^USDC$/i });
       expect(usdcButtons[0]).toHaveClass("bg-[var(--pluto-500)]");
     });
   });
 
-  describe("Interactions", () => {
-    it("should call onFilterChange after debounce when typing in search", async () => {
-      const user = userEvent.setup();
+  describe("Interactions (optimistic)", () => {
+    it("should call onFilterChange immediately when search changes (no debounce)", () => {
       render(<TransactionFilterSidebar {...mockProps} />);
 
       const searchInputs = screen.getAllByLabelText(/Search/i);
-      await user.type(searchInputs[0], "new search");
+      fireEvent.change(searchInputs[0], { target: { value: "new search" } });
 
-      // Debounce is 350ms, wait for it
-      await waitFor(() => {
-        expect(mockProps.onFilterChange).toHaveBeenCalledWith("search", "new search");
-      }, { timeout: 1000 });
+      expect(mockProps.onFilterChange).toHaveBeenCalledTimes(1);
+      expect(mockProps.onFilterChange).toHaveBeenCalledWith("search", "new search");
     });
 
     it("should call onFilterChange immediately when selecting status", () => {
@@ -103,7 +93,7 @@ describe("TransactionFilterSidebar", () => {
     it("should call onFilterChange when clicking an asset button", () => {
       render(<TransactionFilterSidebar {...mockProps} />);
 
-      const xlmButtons = screen.getAllByRole("button", { name: /XLM/i });
+      const xlmButtons = screen.getAllByRole("button", { name: /^XLM$/i });
       fireEvent.click(xlmButtons[0]);
 
       expect(mockProps.onFilterChange).toHaveBeenCalledWith("asset", "XLM");
@@ -112,7 +102,7 @@ describe("TransactionFilterSidebar", () => {
     it("should call onFilterChange when changing dates", () => {
       render(<TransactionFilterSidebar {...mockProps} />);
 
-      const fromInputs = screen.getAllByLabelText(/From/i, { selector: 'input' });
+      const fromInputs = screen.getAllByLabelText(/From/i, { selector: "input" });
       fireEvent.change(fromInputs[0], { target: { value: "2024-01-01" } });
       expect(mockProps.onFilterChange).toHaveBeenCalledWith("dateFrom", "2024-01-01");
     });
@@ -150,6 +140,19 @@ describe("TransactionFilterSidebar", () => {
       fireEvent.click(closeButtons[0]);
 
       expect(mockProps.onClose).toHaveBeenCalled();
+    });
+
+    it("should set aria-busy on search while URL sync is pending", () => {
+      render(
+        <TransactionFilterSidebar
+          {...mockProps}
+          filters={{ ...defaultFilters, search: "pending-query" }}
+          searchSyncPending
+        />,
+      );
+
+      const searchInputs = screen.getAllByLabelText(/Search/i);
+      expect(searchInputs[0]).toHaveAttribute("aria-busy", "true");
     });
   });
 });

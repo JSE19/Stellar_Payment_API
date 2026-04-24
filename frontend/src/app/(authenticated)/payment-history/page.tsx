@@ -54,28 +54,6 @@ function toStatusLabel(t: ReturnType<typeof useTranslations>, status: string) {
   return t.has(`statuses.${status}`) ? t(`statuses.${status}`) : status;
 }
 
-function filtersFromSearchParams(searchParams: URLSearchParams): FilterState {
-  return {
-    search: searchParams.get("search") ?? "",
-    status: searchParams.get("status") ?? "all",
-    asset: searchParams.get("asset") ?? "all",
-    dateFrom: searchParams.get("date_from") ?? "",
-    dateTo: searchParams.get("date_to") ?? "",
-  };
-}
-
-function buildSearchParams(filters: FilterState): URLSearchParams {
-  const params = new URLSearchParams();
-
-  if (filters.search) params.set("search", filters.search);
-  if (filters.status !== "all") params.set("status", filters.status);
-  if (filters.asset !== "all") params.set("asset", filters.asset);
-  if (filters.dateFrom) params.set("date_from", filters.dateFrom);
-  if (filters.dateTo) params.set("date_to", filters.dateTo);
-
-  return params;
-}
-
 function StatCard({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
   const colorMap: Record<string, string> = {
     mint: "text-mint bg-mint/10",
@@ -95,19 +73,6 @@ function StatCard({ label, value, icon, color }: { label: string; value: number 
         </div>
       </div>
     </div>
-  );
-}
-
-function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--pluto-200)] bg-[var(--pluto-50)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--pluto-700)]">
-      {label}
-      <button onClick={onRemove} className="rounded-full hover:bg-[var(--pluto-100)] p-0.5 transition-colors">
-        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </span>
   );
 }
 
@@ -145,6 +110,11 @@ export default function PaymentHistoryPage() {
     activeFilters,
   );
   const hasActiveFilters = hasActivePaymentHistoryFilters(activeFilters);
+  const draftHasActiveFilters = useMemo(
+    () => hasActivePaymentHistoryFilters(draftFilters),
+    [draftFilters],
+  );
+  const searchSyncPending = draftFilters.search !== activeFilters.search;
 
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -533,7 +503,7 @@ export default function PaymentHistoryPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
             Filters
-            {hasActiveFilters && (
+            {draftHasActiveFilters && (
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--pluto-500)] text-[8px] text-white">
                 !
               </span>
@@ -560,14 +530,16 @@ export default function PaymentHistoryPage() {
 
       <div className="flex flex-col lg:flex-row gap-10">
         <TransactionFilterSidebar
-          filters={filters}
+          filters={draftFilters}
           onFilterChange={handleFilterChange}
           onClearFilter={clearFilter}
           onClearAll={clearAllFilters}
-          hasActiveFilters={hasActiveFilters}
+          hasActiveFilters={draftHasActiveFilters}
+          searchSyncPending={searchSyncPending}
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
         />
+        <div className="flex-1 flex flex-col gap-8 min-w-0">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-xl border border-[#E8E8E8] bg-[#F9F9F9] p-6">
@@ -805,33 +777,21 @@ export default function PaymentHistoryPage() {
               />
             </div>
           </div>
+        </div>
+      </div>
 
-        <div className="flex-1 flex flex-col gap-8">
-          {/* Active Filter Chips (Desktop) */}
-          {hasActiveFilters && (
+          {draftHasActiveFilters && (
             <div className="hidden lg:flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mr-1">Active Filters:</span>
-              {filters.search && (
-                <Chip label={`Search: "${filters.search}"`} onRemove={() => clearFilter("search")} />
-              )}
-              {filters.status !== "all" && (
-                <Chip label={`Status: ${filters.status}`} onRemove={() => clearFilter("status")} />
-              )}
-              {filters.asset !== "all" && (
-                <Chip label={`Asset: ${filters.asset}`} onRemove={() => clearFilter("asset")} />
-              )}
-              {filters.dateFrom && (
-                <Chip label={`From: ${filters.dateFrom}`} onRemove={() => clearFilter("dateFrom")} />
-              )}
-              {filters.dateTo && (
-                <Chip label={`To: ${filters.dateTo}`} onRemove={() => clearFilter("dateTo")} />
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="text-xs text-[#6B6B6B]">Active filters:</span>
-
-              {activeFilters.search && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint">
-                  Search: &quot;{activeFilters.search}&quot;
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mr-1">
+                Active Filters:
+              </span>
+              {draftFilters.search && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint ${draftFilters.search !== activeFilters.search ? "ring-1 ring-mint/40" : ""}`}
+                >
+                  Search: &quot;{draftFilters.search}&quot;
                   <button
+                    type="button"
                     onClick={() => clearFilter("search")}
                     className="ml-1 rounded-full p-0.5 hover:bg-mint/20"
                     aria-label="Clear search filter"
@@ -852,10 +812,13 @@ export default function PaymentHistoryPage() {
                   </button>
                 </span>
               )}
-              {activeFilters.status !== "all" && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint">
-                  Status: {activeFilters.status}
+              {draftFilters.status !== "all" && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint ${draftFilters.status !== activeFilters.status ? "ring-1 ring-mint/40" : ""}`}
+                >
+                  Status: {draftFilters.status}
                   <button
+                    type="button"
                     onClick={() => clearFilter("status")}
                     className="ml-1 rounded-full p-0.5 hover:bg-mint/20"
                     aria-label="Clear status filter"
@@ -876,10 +839,13 @@ export default function PaymentHistoryPage() {
                   </button>
                 </span>
               )}
-              {activeFilters.asset !== "all" && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint">
-                  Asset: {activeFilters.asset}
+              {draftFilters.asset !== "all" && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint ${draftFilters.asset !== activeFilters.asset ? "ring-1 ring-mint/40" : ""}`}
+                >
+                  Asset: {draftFilters.asset}
                   <button
+                    type="button"
                     onClick={() => clearFilter("asset")}
                     className="ml-1 rounded-full p-0.5 hover:bg-mint/20"
                     aria-label="Clear asset filter"
@@ -900,10 +866,13 @@ export default function PaymentHistoryPage() {
                   </button>
                 </span>
               )}
-              {activeFilters.dateFrom && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint">
-                  From: {activeFilters.dateFrom}
+              {draftFilters.dateFrom && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint ${draftFilters.dateFrom !== activeFilters.dateFrom ? "ring-1 ring-mint/40" : ""}`}
+                >
+                  From: {draftFilters.dateFrom}
                   <button
+                    type="button"
                     onClick={() => clearFilter("dateFrom")}
                     className="ml-1 rounded-full p-0.5 hover:bg-mint/20"
                     aria-label="Clear from date filter"
@@ -924,10 +893,13 @@ export default function PaymentHistoryPage() {
                   </button>
                 </span>
               )}
-              {activeFilters.dateTo && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint">
-                  To: {activeFilters.dateTo}
+              {draftFilters.dateTo && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs text-mint ${draftFilters.dateTo !== activeFilters.dateTo ? "ring-1 ring-mint/40" : ""}`}
+                >
+                  To: {draftFilters.dateTo}
                   <button
+                    type="button"
                     onClick={() => clearFilter("dateTo")}
                     className="ml-1 rounded-full p-0.5 hover:bg-mint/20"
                     aria-label="Clear to date filter"
@@ -949,6 +921,7 @@ export default function PaymentHistoryPage() {
                 </span>
               )}
               <button
+                type="button"
                 onClick={clearAllFilters}
                 className="text-[10px] font-bold uppercase tracking-widest text-[var(--pluto-500)] hover:underline ml-2"
               >
@@ -956,34 +929,6 @@ export default function PaymentHistoryPage() {
               </button>
             </div>
           )}
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard
-              label="Total"
-              value={totalCount}
-              icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />}
-              color="mint"
-            />
-            <StatCard
-              label="Confirmed"
-              value={payments.filter((p) => p.status === "confirmed").length}
-              icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />}
-              color="green"
-            />
-            <StatCard
-              label="Pending"
-              value={payments.filter((p) => p.status === "pending").length}
-              icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />}
-              color="yellow"
-            />
-            <StatCard
-              label="Failed"
-              value={payments.filter((p) => p.status === "failed").length}
-              icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />}
-              color="red"
-            />
-          </div>
 
           {/* Main Content Area */}
           <div className="flex flex-col gap-4">
@@ -1002,8 +947,9 @@ export default function PaymentHistoryPage() {
                 </div>
                 <h3 className="text-lg font-bold text-[#0A0A0A]">No payments found</h3>
                 <p className="text-sm text-[#6B6B6B] mt-1">Try adjusting your filters to find what you&apos;re looking for.</p>
-                {hasActiveFilters && (
+                {draftHasActiveFilters && (
                   <button
+                    type="button"
                     onClick={clearAllFilters}
                     className="mt-6 text-[10px] font-bold uppercase tracking-widest text-[var(--pluto-500)] hover:underline"
                   >
