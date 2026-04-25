@@ -93,11 +93,14 @@ export default function PaymentMetrics({
   const [hiddenAssets, setHiddenAssets] = useState<Set<string>>(new Set());
   const [range, setRange] = useState<TimeRange>("7D");
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nonBlockingError, setNonBlockingError] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
   const apiKey = useMerchantApiKey();
   const hydrated = useMerchantHydrated();
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const hasLoadedDataRef = useRef(false);
   const chartTitleId = useId();
   const chartDescriptionId = useId();
   const chartSummaryId = useId();
@@ -114,9 +117,15 @@ export default function PaymentMetrics({
     const controller = new AbortController();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     let isCancelled = false;
+    const hasCachedData = hasLoadedDataRef.current;
 
-    setLoading(true);
-    setError(null);
+    setNonBlockingError(null);
+    if (hasCachedData) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+      setError(null);
+    }
 
     async function fetchMetrics() {
       try {
@@ -150,6 +159,7 @@ export default function PaymentMetrics({
 
         setSummary(summaryData);
         setVolumeData(volumePayload);
+        hasLoadedDataRef.current = true;
         // Keep only hidden assets that still exist in the refreshed payload.
         setHiddenAssets((prev) => {
           const available = new Set(volumePayload.assets ?? []);
@@ -159,14 +169,19 @@ export default function PaymentMetrics({
         if (fetchError instanceof Error && fetchError.name === "AbortError") {
           return;
         }
-        setError(
+        const nextError =
           fetchError instanceof Error
             ? fetchError.message
-            : t("fetchMetricsFailed"),
-        );
+            : t("fetchMetricsFailed");
+        if (hasCachedData) {
+          setNonBlockingError(nextError);
+        } else {
+          setError(nextError);
+        }
       } finally {
         if (!isCancelled) {
           setLoading(false);
+          setIsRefreshing(false);
         }
       }
     }
@@ -319,6 +334,14 @@ export default function PaymentMetrics({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {isRefreshing && (
+              <span
+                className="rounded-full border border-[#E8E8E8] bg-[#F5F5F5] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#6B6B6B]"
+                aria-live="polite"
+              >
+                Updating...
+              </span>
+            )}
             <div className="flex gap-0.5 rounded-md border border-[#E8E8E8] bg-[#F5F5F5] p-0.5">
               {TIME_RANGES.map((nextRange) => (
                 <button
@@ -338,6 +361,14 @@ export default function PaymentMetrics({
             </div>
           </div>
         </div>
+        {nonBlockingError && (
+          <p
+            className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-700"
+            role="status"
+          >
+            {nonBlockingError}
+          </p>
+        )}
 
         {assets.length > 0 && (
           <div
