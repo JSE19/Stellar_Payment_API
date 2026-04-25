@@ -94,6 +94,7 @@ export default function PaymentMetrics({
   const [range, setRange] = useState<TimeRange>("7D");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
   const apiKey = useMerchantApiKey();
   const hydrated = useMerchantHydrated();
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -105,67 +106,78 @@ export default function PaymentMetrics({
   useHydrateMerchantStore();
 
   useEffect(() => {
-    if (!hydrated || !apiKey) return;
-
-    const controller = new AbortController();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
-    fetch(`${apiUrl}/api/metrics/7day`, {
-      headers: { "x-api-key": apiKey },
-      signal: controller.signal,
-    })
-      .then((response) =>
-        response.ok
-          ? response.json()
-          : Promise.reject(new Error(t("fetchMetricsFailed"))),
-      )
-      .then((data: MetricsResponse) => setSummary(data))
-      .catch((fetchError) => {
-        if (fetchError instanceof Error && fetchError.name === "AbortError")
-          return;
-        setError(
-          fetchError instanceof Error
-            ? fetchError.message
-            : t("fetchMetricsFailed"),
-        );
-      });
-
-    return () => controller.abort();
-  }, [apiKey, hydrated, t]);
-
-  useEffect(() => {
     if (!hydrated || !apiKey) {
       setLoading(false);
       return;
     }
 
     const controller = new AbortController();
-    setLoading(true);
-
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    let isCancelled = false;
 
-    fetch(`${apiUrl}/api/metrics/volume?range=${range}`, {
-      headers: { "x-api-key": apiKey },
-      signal: controller.signal,
-    })
-      .then((response) =>
-        response.ok
-          ? response.json()
-          : Promise.reject(new Error(t("fetchVolumeFailed"))),
-      )
-      .then((data: VolumeResponse) => setVolumeData(data))
-      .catch((fetchError) => {
-        if (fetchError instanceof Error && fetchError.name === "AbortError")
+    setLoading(true);
+    setError(null);
+
+    async function fetchMetrics() {
+      try {
+        const [summaryResponse, volumeResponse] = await Promise.all([
+          fetch(`${apiUrl}/api/metrics/7day`, {
+            headers: { "x-api-key": apiKey },
+            signal: controller.signal,
+          }),
+          fetch(`${apiUrl}/api/metrics/volume?range=${range}`, {
+            headers: { "x-api-key": apiKey },
+            signal: controller.signal,
+          }),
+        ]);
+
+        if (!summaryResponse.ok) {
+          throw new Error(t("fetchMetricsFailed"));
+        }
+
+        if (!volumeResponse.ok) {
+          throw new Error(t("fetchVolumeFailed"));
+        }
+
+        const [summaryData, volumePayload] = await Promise.all([
+          summaryResponse.json() as Promise<MetricsResponse>,
+          volumeResponse.json() as Promise<VolumeResponse>,
+        ]);
+
+        if (isCancelled) {
           return;
-        setError((prev) =>
-          prev ??
-          (fetchError instanceof Error ? fetchError.message : t("fetchVolumeFailed")),
-        );
-      })
-      .finally(() => setLoading(false));
+        }
 
-    return () => controller.abort();
-  }, [apiKey, hydrated, range, t]);
+        setSummary(summaryData);
+        setVolumeData(volumePayload);
+        // Keep only hidden assets that still exist in the refreshed payload.
+        setHiddenAssets((prev) => {
+          const available = new Set(volumePayload.assets ?? []);
+          return new Set([...prev].filter((asset) => available.has(asset)));
+        });
+      } catch (fetchError) {
+        if (fetchError instanceof Error && fetchError.name === "AbortError") {
+          return;
+        }
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : t("fetchMetricsFailed"),
+        );
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchMetrics();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [apiKey, hydrated, range, refreshToken, t]);
 
   const toggleAsset = (asset: string) => {
     setHiddenAssets((prev) => {
@@ -195,7 +207,7 @@ export default function PaymentMetrics({
         <p className="text-sm text-yellow-400">{error}</p>
         <button
           type="button"
-          onClick={() => setError(null)}
+          onClick={() => setRefreshToken((current) => current + 1)}
           className="mt-3 text-xs text-slate-400 underline"
         >
           {t("retry")}

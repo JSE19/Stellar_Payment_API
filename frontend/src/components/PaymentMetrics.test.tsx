@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import PaymentMetrics from "./PaymentMetrics";
 import { vi } from "vitest";
@@ -120,6 +120,52 @@ describe("PaymentMetrics Component", () => {
 
         await waitFor(() => {
             expect(screen.getByText("noPayments")).toBeInTheDocument();
+        });
+    });
+
+    it("refetches volume data when range changes", async () => {
+        (globalThis.fetch as any)
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ total_volume: 10, confirmed_count: 1, success_rate: 100, data: [] }) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ assets: [], data: [] }) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ total_volume: 10, confirmed_count: 1, success_rate: 100, data: [] }) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ assets: [], data: [] }) });
+
+        render(React.createElement(PaymentMetrics));
+
+        await waitFor(() => {
+            expect(globalThis.fetch).toHaveBeenCalledWith(
+                expect.stringContaining("/api/metrics/volume?range=7D"),
+                expect.any(Object),
+            );
+        });
+
+        fireEvent.click(screen.getByRole("button", { name: "30D" }));
+
+        await waitFor(() => {
+            expect(globalThis.fetch).toHaveBeenCalledWith(
+                expect.stringContaining("/api/metrics/volume?range=30D"),
+                expect.any(Object),
+            );
+        });
+    });
+
+    it("retries loading when retry button is clicked", async () => {
+        (globalThis.fetch as any)
+            .mockResolvedValueOnce({ ok: false, json: async () => ({}) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ assets: [], data: [] }) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ total_volume: 123, confirmed_count: 2, success_rate: 50, data: [] }) })
+            .mockResolvedValueOnce({ ok: true, json: async () => ({ assets: [], data: [] }) });
+
+        render(React.createElement(PaymentMetrics));
+
+        await waitFor(() => {
+            expect(screen.getByRole("button", { name: "retry" })).toBeInTheDocument();
+        });
+
+        fireEvent.click(screen.getByRole("button", { name: "retry" }));
+
+        await waitFor(() => {
+            expect(screen.getByText("123")).toBeInTheDocument();
         });
     });
 });
