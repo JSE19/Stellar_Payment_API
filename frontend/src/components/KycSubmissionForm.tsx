@@ -3,7 +3,6 @@
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 
 /**
  * Form data interface for KYC submission
@@ -84,7 +83,7 @@ const submitVariants: Variants = {
  * Form for Know Your Customer verification with framer-motion animations
  * and comprehensive screen reader support.
  */
-export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = React.memo(({
+export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
@@ -99,20 +98,8 @@ export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = React.memo(({
     documentUpload: null,
   });
   const [errors, setErrors] = useState<Partial<KYCFormData>>({});
-  const {
-    state: submitStatus,
-    setState: setSubmitStatus,
-    isPending,
-    executeUpdate,
-  } = useOptimisticUpdate<"idle" | "loading" | "success" | "error">("idle", {
-    onSuccess: () => {
-      setAnnouncementText(t("kyc.submitSuccess") || "KYC form submitted successfully!");
-    },
-    onError: () => {
-      setAnnouncementText(t("kyc.submitError") || "Failed to submit KYC form. Please try again.");
-    },
-  });
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [announcementText, setAnnouncementText] = useState("");
 
   /**
@@ -152,29 +139,29 @@ export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = React.memo(({
   /**
    * Handle form submission
    */
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      if (!validateForm()) {
-        setAnnouncementText(
-          t("kyc.validationError") || "Please fix the errors in the form"
-        );
-        return;
-      }
+    if (!validateForm()) {
+      setAnnouncementText(t("kyc.validationError") || "Please fix the errors in the form");
+      return;
+    }
 
-      setAnnouncementText(t("kyc.submitting") || "Submitting KYC form...");
+    setIsSubmitting(true);
+    setSubmitStatus("loading");
+    setAnnouncementText(t("kyc.submitting") || "Submitting KYC form...");
 
-      await executeUpdate(
-        () => "loading",
-        async () => {
-          await onSubmit?.(formData);
-          setSubmitStatus("success");
-        }
-      );
-    },
-    [formData, validateForm, onSubmit, t, executeUpdate, setSubmitStatus]
-  );
+    try {
+      await onSubmit?.(formData);
+      setSubmitStatus("success");
+      setAnnouncementText(t("kyc.submitSuccess") || "KYC form submitted successfully!");
+    } catch (error) {
+      setSubmitStatus("error");
+      setAnnouncementText(t("kyc.submitError") || "Failed to submit KYC form. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, validateForm, onSubmit, t]);
 
   /**
    * Handle input changes
@@ -501,7 +488,7 @@ export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = React.memo(({
             className="flex-1 rounded-xl border border-pluto-200 bg-white px-6 py-3 font-semibold text-pluto-900 transition-all hover:bg-pluto-50 focus:ring-2 focus:ring-pluto-400"
             variants={submitVariants}
             animate="idle"
-            disabled={isPending}
+            disabled={isSubmitting}
           >
             {t("common.cancel") || "Cancel"}
           </motion.button>
@@ -510,10 +497,10 @@ export const KYCSubmissionForm: React.FC<KYCSubmissionFormProps> = React.memo(({
             className="flex-1 rounded-xl bg-pluto-600 px-6 py-3 font-semibold text-white transition-all hover:bg-pluto-700 focus:ring-2 focus:ring-pluto-400 disabled:opacity-50 disabled:cursor-not-allowed"
             variants={submitVariants}
             animate={submitStatus}
-            disabled={isPending}
+            disabled={isSubmitting}
             aria-describedby="submit-status"
           >
-            {isPending ? (
+            {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
                 <motion.div
                   className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
